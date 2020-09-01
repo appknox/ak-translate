@@ -1,9 +1,15 @@
 $color-text: #2c3e50;
 $color-bg: white;
-$color-primary: #ff3531;
+$color-primary: #3E63F6;
 $color-success: limegreen;
 $color-error: red;
 $color-waiting: #fda400;
 $color-disabled: #B8B8BB;
 
 $border-radius: 0.3em;
+
+// BreadCrumb
+$color-breadcrumb-active: #717379;
+$color-breadcrumb-separator: lighten($color-breadcrumb-active, 30%);
+
+$navbar-height: 3.2em;
