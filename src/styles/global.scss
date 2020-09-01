@@ -1,0 +1,22 @@
+*, *::before, *::after {
+  margin: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+  color: $color-primary;
+}
+
+.contain-height {
+  height: 100%;
+}
