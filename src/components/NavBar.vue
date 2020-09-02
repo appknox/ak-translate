@@ -10,18 +10,21 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Options, Vue } from "vue-class-component";
 import BreadCrumb from "@/components/BreadCrumb.vue";
 import BreadcrumbLink from "../types/BreadcrumbLink";
 import GithubUserService from "../services/GithubUserService";
 
-@Component({
+@Options({
+  props: {
+    breadcrumb: Array
+  },
   components: {
     BreadCrumb
   }
 })
 export default class NavBar extends Vue {
-  @Prop() private breadcrumb!: BreadcrumbLink[];
+  breadcrumb!: BreadcrumbLink[];
 
   private username = "";
 

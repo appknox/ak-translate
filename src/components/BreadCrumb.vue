@@ -17,12 +17,16 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Options, Vue } from "vue-class-component";
 import BreadcrumbLink from "../types/BreadcrumbLink";
 
-@Component
+@Options({
+  props: {
+    breadcrumb: Array
+  }
+})
 export default class BreadCrumb extends Vue {
-  @Prop() private breadcrumb!: BreadcrumbLink[];
+  breadcrumb!: BreadcrumbLink[];
 }
 </script>
 
