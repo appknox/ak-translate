@@ -12,7 +12,7 @@
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
 import BreadCrumb from "@/components/BreadCrumb.vue";
-import BreadcrumbLink from "../types/BreadcrumbLink";
+import BreadcrumbLinkType from "../types/BreadcrumbLinkType";
 import GithubUserService from "../services/GithubUserService";
 
 @Options({
@@ -24,7 +24,7 @@ import GithubUserService from "../services/GithubUserService";
   }
 })
 export default class NavBar extends Vue {
-  breadcrumb!: BreadcrumbLink[];
+  breadcrumb!: BreadcrumbLinkType[];
 
   private username = "";
 

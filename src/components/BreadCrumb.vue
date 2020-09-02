@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
-import BreadcrumbLink from "../types/BreadcrumbLink";
+import BreadcrumbLinkType from "../types/BreadcrumbLinkType";
 
 @Options({
   props: {
@@ -26,7 +26,7 @@ import BreadcrumbLink from "../types/BreadcrumbLink";
   }
 })
 export default class BreadCrumb extends Vue {
-  breadcrumb!: BreadcrumbLink[];
+  breadcrumb!: BreadcrumbLinkType[];
 }
 </script>
 
