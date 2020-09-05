@@ -1,11 +1,11 @@
-$color-text: #2c3e50;
+$color-text: #575757; //#2c3e50;
 $color-gray: #717379;
 $color-bg: white;
-$color-primary: #3E63F6;
+$color-primary: #3e63f6;
 $color-success: limegreen;
 $color-error: red;
 $color-waiting: #fda400;
-$color-disabled: #B8B8BB;
+$color-disabled: #b8b8bb;
 
 $border-radius: 0.3em;
 
@@ -13,4 +13,23 @@ $border-radius: 0.3em;
 $color-breadcrumb-active: $color-gray;
 $color-breadcrumb-separator: lighten($color-breadcrumb-active, 30%);
 
-$navbar-height: 3.2em;
+$navbar-height: 3.5em;
+
+$sidebar-bg: #f1f3f6;
+$sidebar-color: #b4bcc4;
+$sidebar-title-color: #a6aab7;
+$sidebar-active-bg: #f8f8fa;
+$sidebar-active-color: darken($color-text, 5%);
+$sidebar-active-border-color: #ebedf3;
+$sidebar-platform-icon-color: #d7d9e0;
+$sidebar-android-icon-color: #3fda82;
+$sidebar-ios-icon-color: #d6d5d8;
+$sidebar-api-icon-color: #007aff;
+$sidebar-common-icon-color: #000000;
+
+$main-bg: #f8f8fa;
+
+$project-card-bg: white;
+$project-card-border-color: #ebedf3;
+
+$vulnerability-split-bg: linear-gradient(90deg, #f8f8fa 50%, #ffffff 50%);

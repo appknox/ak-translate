@@ -8,10 +8,10 @@
 #app {
   height: 100%;
   overflow: hidden;
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Noto Sans", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
+  font-size: 14px;
   color: $color-text;
   display: flex;
   flex-direction: column;

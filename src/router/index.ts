@@ -1,31 +1,50 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
+import Vue from "vue";
+import VueRouter, { RouteConfig } from "vue-router";
 import Home from "../views/Home.vue";
 
-const routes: Array<RouteRecordRaw> = [
+Vue.use(VueRouter);
+
+const routes: Array<RouteConfig> = [
   {
     path: "/",
     name: "Home",
-    component: Home
+    redirect: '/projects',
   },
   {
-    path: "/about",
-    name: "About",
+    path: "/projects",
+    name: "Projects",
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () =>
-      import(/* webpackChunkName: "about" */ "../views/About.vue")
+      import(/* webpackChunkName: "projects" */ "../views/Projects.vue")
   },
   {
-    path: "/vulnerability",
+    path: "/vulnerabilities",
+    name: "Vulnerabilities",
+    redirect: '/vulnerabilities/1',
+  },
+  {
+    path: "/vulnerabilities/:id",
     name: "Vulnerability",
     component: () =>
-      import(/* webpackChunkName: "vulnerability" */ "../views/Vulnerability.vue")
-  }
+      import(/* webpackChunkName: "projects" */ "../views/Vulnerability.vue")
+      // children: [
+      //   {
+      //     path: "edit",
+      //     component: () =>
+      //       import(
+      //         /* webpackChunkName: "vulnerability_edit" */ "../views/VulnerabilityEdit.vue"
+      //       ),
+      //     props: true
+      //   }
+      // ]
+  },
 ];
 
-const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+const router = new VueRouter({
+  mode: "history",
+  base: process.env.BASE_URL,
   routes
 });
 
