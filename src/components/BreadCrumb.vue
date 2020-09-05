@@ -17,16 +17,12 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from "vue-class-component";
+import { Component, Prop, Vue } from "vue-property-decorator";
 import BreadcrumbLinkType from "../types/BreadcrumbLinkType";
 
-@Options({
-  props: {
-    breadcrumb: Array
-  }
-})
+@Component
 export default class BreadCrumb extends Vue {
-  breadcrumb!: BreadcrumbLinkType[];
+  @Prop() private breadcrumb!: BreadcrumbLinkType[];
 }
 </script>
 
@@ -43,7 +39,7 @@ export default class BreadCrumb extends Vue {
     &:not(:last-child)::after {
       content: "/";
       display: inline-block;
-      margin-left: 0.5em;
+      margin-left: 0.5rem;
       margin-right: 0.5rem;
       color: $color-breadcrumb-separator;
     }

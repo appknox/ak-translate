@@ -4,33 +4,30 @@
       <img class="logo__img" src="../assets/logo.svg" alt="appknox" />
       <span class="logo__title">Translate</span>
     </div>
-    <BreadCrumb v-bind:breadcrumb="breadcrumb" />
+    <slot></slot>
     <div class="logged">{{ username }}</div>
   </header>
 </template>
 
 <script lang="ts">
-import { Options, Vue } from "vue-class-component";
-import BreadCrumb from "@/components/BreadCrumb.vue";
-import BreadcrumbLinkType from "../types/BreadcrumbLinkType";
+import { Component, Vue } from "vue-property-decorator";
 import GithubUserService from "../services/GithubUserService";
 
-@Options({
-  props: {
-    breadcrumb: Array
-  },
-  components: {
-    BreadCrumb
-  }
-})
+@Component
 export default class NavBar extends Vue {
-  breadcrumb!: BreadcrumbLinkType[];
+  // @Prop() private breadcrumb!: BreadcrumbLinkType[];
 
   private username = "";
 
   fetchUser() {
-    GithubUserService.get().then(response => {
+    const username = localStorage.getItem("username");
+    if (username) {
+      this.username = username;
+      return;
+    }
+    return GithubUserService.get().then(response => {
       this.username = response.data.login;
+      localStorage.setItem("username", this.username);
     });
   }
 
@@ -49,7 +46,7 @@ export default class NavBar extends Vue {
   position: sticky;
   top: 0;
   height: $navbar-height;
-  padding: 0 1em;
+  padding: 0 1rem;
   background: $color-bg;
   box-shadow: 1px 0 12px rgba(lighten($color-text, 45%), 0.5);
 }
