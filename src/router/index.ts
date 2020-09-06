@@ -28,18 +28,16 @@ const routes: Array<RouteConfig> = [
     path: "/vulnerabilities/:id",
     name: "Vulnerability",
     component: () =>
-      import(/* webpackChunkName: "projects" */ "../views/Vulnerability.vue")
-      // children: [
-      //   {
-      //     path: "edit",
-      //     component: () =>
-      //       import(
-      //         /* webpackChunkName: "vulnerability_edit" */ "../views/VulnerabilityEdit.vue"
-      //       ),
-      //     props: true
-      //   }
-      // ]
+      import(/* webpackChunkName: "projects" */ "../views/VulnerabilityView.vue"),
   },
+  {
+    path: "/vulnerabilities/:id/translate",
+    name: "Translate",
+    component: () =>
+      import(
+        /* webpackChunkName: "vulnerability_translate" */ "../views/VulnerabilityTranslateView.vue"
+      ),
+  }
 ];
 
 const router = new VueRouter({
