@@ -22,3 +22,21 @@ a {
 .contain-height {
   height: 100%;
 }
+.contain-width {
+  height: 100%;
+}
+
+.btn {
+  padding: 0.5rem 1em;
+  border: none;
+  border-radius: $border-radius;
+
+  &--primary {
+    background: $color-primary;
+    color: white;
+  }
+  &--secondary {
+    background: $color-secondary;
+    color: white;
+  }
+}
