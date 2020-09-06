@@ -5,7 +5,10 @@
       <span class="logo__title">Translate</span>
     </div>
     <slot></slot>
-    <div class="logged">{{ username }}</div>
+    <div class="navbar__right">
+      <slot name="right"></slot>
+      <div class="logged">{{ username }}</div>
+    </div>
   </header>
 </template>
 
@@ -49,6 +52,14 @@ export default class NavBar extends Vue {
   padding: 0 1rem;
   background: $color-bg;
   box-shadow: 1px 0 12px rgba(lighten($color-text, 45%), 0.5);
+  &__right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    & > * {
+      margin-left: 0.8rem;
+    }
+  }
 }
 
 .logo {
@@ -62,9 +73,5 @@ export default class NavBar extends Vue {
     font-size: 1.21rem;
     margin-left: 0.4rem;
   }
-}
-
-.logged {
-  margin-left: auto;
 }
 </style>
