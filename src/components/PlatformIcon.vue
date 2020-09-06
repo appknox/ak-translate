@@ -1,5 +1,5 @@
 <template>
-  <div class="platforn-icon" v-bind:class="'icon--' + platform">
+  <div class="platform-icon" v-bind:class="'icon--' + platform">
     <svg
       v-if="platform == 'android'"
       version="1.1"
@@ -154,9 +154,14 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 @Component
 export default class PlatformIcon extends Vue {
   @Prop() private platform!: string;
-  @Prop() private height = "20px";
-  @Prop() private width = "20px";
+  @Prop() private height!: string;
+  @Prop() private width!: string;
 }
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.platform-icon {
+  display: flex;
+  align-items: center;
+}
+</style>
