@@ -1,14 +1,14 @@
 <template>
   <footer class="footer">
     <div v-if="mode === 'read'" class="vuln-read-options">
-      <button class="btn btn--primary" v-on:click="startWrite()">
+      <button class="akt-btn akt-btn--primary" v-on:click="startWrite()">
         Start Translation
       </button>
-      <!-- <button class="btn btn--secondary">Edit Vulnerabilities</button> -->
+      <!-- <button class="akt-btn akt-btn--secondary">Edit Vulnerabilities</button> -->
     </div>
     <div v-if="mode === 'write'" class="vuln-read-options">
-      <button class="btn btn--primary">Commit Changes</button>
-      <button class="btn btn--secondary">Submit for Review</button>
+      <button class="akt-btn akt-btn--primary">Commit Changes</button>
+      <button class="akt-btn akt-btn--secondary">Submit for Review</button>
     </div>
   </footer>
 </template>

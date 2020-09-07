@@ -4,6 +4,21 @@
   </div>
 </template>
 
+<script lang="ts">
+import { Vue } from "vue-property-decorator";
+
+import VueMarkdownEditor from "@kangc/v-md-editor";
+import enUS from "@kangc/v-md-editor/lib/lang/en-US";
+import "@kangc/v-md-editor/lib/style/base-editor.css";
+import vuepressTheme from "@kangc/v-md-editor/lib/theme/vuepress.js";
+
+VueMarkdownEditor.use(vuepressTheme);
+VueMarkdownEditor.lang.use("en-US", enUS);
+Vue.use(VueMarkdownEditor);
+
+export default {};
+</script>
+
 <style lang="scss">
 #app {
   height: 100%;
@@ -16,5 +31,30 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+}
+</style>
+
+<style lang="scss">
+.v-md-editor {
+  box-shadow: none;
+  z-index: 1;
+  background-color: transparent;
+}
+.v-md-editor--preview .v-md-editor-preview {
+  padding: 0;
+}
+.vuepress-markdown-body {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+.v-md-textarea-editor pre, .v-md-textarea-editor textarea {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.85rem;
+}
+.v-md-editor--fullscreen {
+  top: $navbar-height;
+  bottom: $navbar-height;
+  background: white;
 }
 </style>
