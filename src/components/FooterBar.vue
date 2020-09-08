@@ -7,10 +7,18 @@
       <!-- <button class="akt-btn akt-btn--secondary">Edit Vulnerabilities</button> -->
     </div>
     <div v-if="mode === 'write'" class="vuln-read-options">
-      <button class="akt-btn akt-btn--primary" @click="showSaveModal">
-        Save Changes
+      <button
+        class="akt-btn akt-btn--primary"
+        @click="showSaveModal"
+        :disabled="modifiedVulnerabilitiesCount == 0"
+      >
+        Save Changes ({{ modifiedVulnerabilitiesCount }})
       </button>
-      <button class="akt-btn akt-btn--secondary" @click="submitForReview">
+      <button
+        class="akt-btn akt-btn--secondary"
+        @click="submitForReview"
+        :disabled="commitCount == 0"
+      >
         Submit for Review
       </button>
     </div>
@@ -64,7 +72,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, Watch } from "vue-property-decorator";
 import RepoBranchService from "@/services/RepoBranchService";
 import GithubRepoBranchResponse from "@/types/github/GithubRepoBranchResponse";
 import ModalDialog from "@/components/ModalDialog.vue";
@@ -81,10 +89,16 @@ export default class FooterBar extends Vue {
 
   private commitMsg = "";
   private commitValidationMsg = "";
+  private commitCount = 0;
   private isModalVisible = false;
 
   private modifiedVulnerabilitiesCount = 0;
   private modifiedVulnerabilitiesIds: number[] = [];
+
+  @Watch("$store.state.modifiedVulnerabilitiesCounter")
+  private watchModifiedVulnerabilities() {
+    this.getModifiedVulnerabilitiesCount();
+  }
 
   showSaveModal() {
     this.getModifiedVulnerabilitiesCount();
@@ -118,7 +132,8 @@ export default class FooterBar extends Vue {
     this.commitValidationMsg = "";
     this.getModifiedVulnerabilitiesCount();
     const commitCount = localStorage.getItem("commitCount") || "0";
-    localStorage.setItem("commitCount", parseInt(commitCount) + 1 + "");
+    this.commitCount = parseInt(commitCount) + 1;
+    localStorage.setItem("commitCount", this.commitCount + "");
     this.$toast.success("Changes saved");
   }
 
@@ -213,6 +228,7 @@ export default class FooterBar extends Vue {
   mounted() {
     this.getBranch();
     this.setMode();
+    this.getModifiedVulnerabilitiesCount();
   }
 }
 </script>

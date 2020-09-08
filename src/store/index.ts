@@ -15,7 +15,8 @@ export default new Vuex.Store({
     modifiedVulnerabilities: {
       en: {},
       ja: {}
-    }
+    },
+    modifiedVulnerabilitiesCounter: 0,
   },
   getters: {
     getVulnerabilities: state => {
@@ -49,6 +50,7 @@ export default new Vuex.Store({
     saveModifiedVulnerabilityField(state, payload) {
       state.modifiedVulnerabilities[payload.lang][payload.id]["vulnerability"] =
         payload.vulnerability;
+      state.modifiedVulnerabilitiesCounter = state.modifiedVulnerabilitiesCounter + 1;
       return;
     },
     saveModifiedVulnerability(state, payload) {
@@ -56,6 +58,7 @@ export default new Vuex.Store({
         "hash": payload.hash,
         "vulnerability": payload.vulnerability
       }
+      state.modifiedVulnerabilitiesCounter = state.modifiedVulnerabilitiesCounter + 1;
       return;
     },
     initModifiedVulnerabilities(state) {
@@ -70,10 +73,12 @@ export default new Vuex.Store({
           state.modifiedVulnerabilities[lang][v.id]["hash"] = hash(v);
         });
       }
+      state.modifiedVulnerabilitiesCounter = state.modifiedVulnerabilitiesCounter + 1;
       return;
     },
     saveModifiedVulnerabilities(state, payload) {
       state.modifiedVulnerabilities = payload;
+      state.modifiedVulnerabilitiesCounter = state.modifiedVulnerabilitiesCounter + 1;
       return;
     }
   },
