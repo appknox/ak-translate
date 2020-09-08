@@ -12,9 +12,17 @@ import enUS from "@kangc/v-md-editor/lib/lang/en-US";
 import "@kangc/v-md-editor/lib/style/base-editor.css";
 import vuepressTheme from "@kangc/v-md-editor/lib/theme/vuepress.js";
 
+import Toast from "vue-toastification";
+import "vue-toastification/dist/index.css";
+
 VueMarkdownEditor.use(vuepressTheme);
 VueMarkdownEditor.lang.use("en-US", enUS);
 Vue.use(VueMarkdownEditor);
+
+Vue.use(Toast, {
+  timeout: 3000,
+  transition: "Vue-Toastification__fade"
+});
 
 export default {};
 </script>

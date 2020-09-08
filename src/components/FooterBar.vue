@@ -7,37 +7,56 @@
       <!-- <button class="akt-btn akt-btn--secondary">Edit Vulnerabilities</button> -->
     </div>
     <div v-if="mode === 'write'" class="vuln-read-options">
-      <button class="akt-btn akt-btn--primary" @click="showModal">
+      <button class="akt-btn akt-btn--primary" @click="showSaveModal">
         Save Changes
       </button>
-      <button class="akt-btn akt-btn--secondary">Submit for Review</button>
+      <button class="akt-btn akt-btn--secondary" @click="submitForReview">
+        Submit for Review
+      </button>
     </div>
 
     <modal-dialog v-show="isModalVisible" @close="closeModal">
       <template v-slot:header><h4>Save changes</h4></template>
       <template v-slot:body>
-        <!-- <div class="commit__status">
-          <div>
-            Includes translation modifications of
-            {{ modifiedVulnerabilitiesCount }} vulnerabilities
+        <div v-if="modifiedVulnerabilitiesCount > 0">
+          <div class="commit__status">
+            <div>
+              Make sure to save after each vulnerability's translation change.
+            </div>
           </div>
-        </div> -->
-        <div class="commit">
-          <div class="commit__label"><strong>What did you change?</strong></div>
-          <div class="commit__edit">
-            <textarea
-              class="commit__textarea"
-              rows="3"
-              v-model="commitMsg"
-              placeholder="Eg: Updated ja translations: 55 & 110"
-            ></textarea>
-            <div class="commit__error">{{ commitValidationMsg }}</div>
+          <div class="commit">
+            <div class="commit__label">
+              <strong>What did you change?</strong>
+            </div>
+            <div class="commit__edit">
+              <textarea
+                class="commit__textarea"
+                rows="2"
+                v-model="commitMsg"
+                placeholder="Eg: Updated ja translations: 55 & 110"
+              ></textarea>
+              <div class="commit__error">{{ commitValidationMsg }}</div>
+            </div>
           </div>
         </div>
+        <div v-else class="commit__empty">No local changes to save!</div>
       </template>
-      <template v-slot:footer>
-        <button class="akt-btn akt-btn--primary" @click="commitChanges()">
-          Save
+      <template v-slot:footer v-if="modifiedVulnerabilitiesCount > 0">
+        <button
+          class="akt-btn akt-btn--icon akt-btn--primary commit__btn"
+          @click="commitChanges()"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18px"
+            height="18px"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"
+            />
+          </svg>
+          <span>Save</span>
         </button>
       </template>
     </modal-dialog>
@@ -67,10 +86,10 @@ export default class FooterBar extends Vue {
   private modifiedVulnerabilitiesCount = 0;
   private modifiedVulnerabilitiesIds: number[] = [];
 
-  showModal() {
-    this.isModalVisible = true;
+  showSaveModal() {
     this.getModifiedVulnerabilitiesCount();
-    this.getModifiedVulnerabilities();
+    this.isModalVisible = true;
+    // this.getModifiedVulnerabilities();
     this.commitMsg = `Updated ja translations for vulnerabilities ${this.modifiedVulnerabilitiesIds
       .slice(0, 10)
       .join(", ")}${
@@ -81,6 +100,11 @@ export default class FooterBar extends Vue {
     this.isModalVisible = false;
   }
   commitChanges() {
+    if (!this.modifiedVulnerabilitiesCount) {
+      this.closeModal();
+      this.$toast.warning("No changes to save");
+      return;
+    }
     if (!this.commitMsg) {
       this.commitValidationMsg = "This cannot be empty";
       return;
@@ -92,6 +116,14 @@ export default class FooterBar extends Vue {
     this.closeModal();
     this.commitMsg = "";
     this.commitValidationMsg = "";
+    this.getModifiedVulnerabilitiesCount();
+    const commitCount = localStorage.getItem("commitCount") || "0";
+    localStorage.setItem("commitCount", parseInt(commitCount) + 1 + "");
+    this.$toast.success("Changes saved");
+  }
+
+  submitForReview() {
+    this.$toast("I'm a toast!");
   }
 
   getModifiedVulnerabilities() {
@@ -224,15 +256,17 @@ export default class FooterBar extends Vue {
     font-size: 0.9rem;
     font-family: inherit;
     padding: 0.2rem 0.5rem;
-    &::placeholder {
-      color: #a8a8a8;
-      opacity: 1; /* Firefox */
-    }
   }
   &__error {
     color: $color-error;
     font-size: 0.8rem;
-    // font-style: ;
+  }
+  &__btn {
+    font-size: 0.95rem;
+  }
+  &__empty {
+    text-align: center;
+    padding: 2rem 1rem 0.5rem;
   }
 }
 </style>

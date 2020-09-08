@@ -30,13 +30,46 @@ a {
   padding: 0.5rem 1em;
   border: none;
   border-radius: $border-radius;
+  display: flex;
+  align-items: center;
+  &--icon {
+    padding: 0.4rem 0.9em;
+  }
 
   &--primary {
     background: $color-primary;
     color: white;
+    &:hover:not(:disabled), &:active:not(:disabled), &:focus:not(:disabled) {
+      background: darken($color-primary, 5%);
+      cursor: pointer;
+    }
+    &:disabled {
+      background: lighten($color-primary, 20%);
+      cursor: not-allowed;
+    }
+    svg {
+      margin-right: 0.5rem;
+      path {
+        fill: white;
+      }
+    }
   }
   &--secondary {
     background: $color-secondary;
     color: white;
+    &:hover:not(:disabled), &:active:not(:disabled), &:focus:not(:disabled) {
+      background: darken($color-secondary, 5%);
+      cursor: pointer;
+    }
+    &:disabled {
+      background: lighten($color-secondary, 20%);
+      cursor: not-allowed;
+    }
+    svg {
+      margin-right: 0.5rem;
+      path {
+        fill: white;
+      }
+    }
   }
 }
