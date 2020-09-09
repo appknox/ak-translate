@@ -129,6 +129,9 @@ import { Component, Vue, Watch } from "vue-property-decorator";
 import RepoBranchService from "@/services/RepoBranchService";
 import GithubRepoBranchResponse from "@/types/github/GithubRepoBranchResponse";
 import ModalDialog from "@/components/ModalDialog.vue";
+import RepoContentService from "@/services/RepoContentService";
+import GithubRepoContentResponse from "@/types/github/GithubRepoContentResponse";
+import { Base64 } from "js-base64";
 
 @Component({
   components: {
@@ -136,7 +139,7 @@ import ModalDialog from "@/components/ModalDialog.vue";
   }
 })
 export default class FooterBar extends Vue {
-  private branch = localStorage.getItem("branch");
+  private branch = localStorage.getItem("branch") || "";
   private username = localStorage.getItem("username");
   private editor = localStorage.getItem("editor");
 
@@ -156,6 +159,7 @@ export default class FooterBar extends Vue {
   private watchModifiedVulnerabilities() {
     this.getModifiedVulnerabilitiesCount();
     this.isPRSubmissible();
+    console.log("trigger");
   }
 
   isPRSubmissible() {
@@ -167,7 +171,6 @@ export default class FooterBar extends Vue {
   showCommitModal() {
     this.getModifiedVulnerabilitiesCount();
     this.isCommitModalVisible = true;
-    // this.getModifiedVulnerabilities();
     this.commitMsg = `Updated ja translations for vulnerabilities ${this.modifiedVulnerabilitiesIds
       .slice(0, 10)
       .join(", ")}${
@@ -177,6 +180,73 @@ export default class FooterBar extends Vue {
   closeCommitModal() {
     this.isCommitModalVisible = false;
   }
+
+  async commitTranslationsToGithub() {
+    const REPO = "vulnerabilities";
+    const lang = "ja";
+    const langDir = `locales/${lang}`;
+    const fieldFileMap = {
+      name: "name",
+      question: "question",
+      summary: "description",
+      description: "intro",
+      businessImplication: "business_implication",
+      compliant: "compliant",
+      nonCompliant: "non_compliant",
+      successMessage: "success_message",
+      relatedTo: "related_to"
+    };
+
+    const mvList = this.getModifiedVulnerabilities();
+    await Object.keys(mvList).forEach(async k => {
+      const origVuln = this.$store.getters.getVulnerability(k, lang);
+      await Object.keys(mvList[k].vulnerability).forEach(async field => {
+        const currentFile: GithubRepoContentResponse = await RepoContentService.get(
+          REPO,
+          this.branch,
+          `${langDir}/${origVuln.key}/${fieldFileMap[field]}.md`
+        ).then(response => response.data);
+
+        console.log(
+          REPO,
+          this.branch,
+          `/${langDir}/${origVuln.key}/${fieldFileMap[field]}.md`,
+          Base64.encode(mvList[k].vulnerability[field]),
+          currentFile.sha,
+          `Updated translation for vulnerability ${k} ${fieldFileMap[field]}`
+        );
+        await RepoContentService.put(
+          REPO,
+          this.branch,
+          `${langDir}/${origVuln.key}/${fieldFileMap[field]}.md`,
+          Base64.encode(mvList[k].vulnerability[field]),
+          currentFile.sha,
+          `Updated ${fieldFileMap[field]} of vulnerability ${k} translation`
+        );
+      });
+      this.$store.commit("saveModifiedVulnerability", {
+        lang: lang,
+        id: k,
+        hash: mvList[k].hash,
+        vulnerability: null
+      });
+      console.log({
+        lang: lang,
+        id: k,
+        hash: mvList[k].hash,
+        vulnerability: null
+      });
+      return;
+    });
+
+    const modifiedVulnerabilities = this.$store.getters
+      .getModifiedVulnerabilities;
+    localStorage.setItem(
+      "modifiedVulnerabilities",
+      JSON.stringify(modifiedVulnerabilities)
+    );
+  }
+
   commitChanges() {
     if (!this.modifiedVulnerabilitiesCount) {
       this.closeCommitModal();
@@ -191,6 +261,9 @@ export default class FooterBar extends Vue {
       this.commitValidationMsg = "Atleast 5 characters is required";
       return;
     }
+
+    this.commitTranslationsToGithub();
+
     this.closeCommitModal();
     this.commitMsg = "";
     this.commitValidationMsg = "";
@@ -199,6 +272,7 @@ export default class FooterBar extends Vue {
     this.commitCount = parseInt(commitCount) + 1;
     localStorage.setItem("commitCount", this.commitCount + "");
     this.$toast.success("Changes saved");
+    this.$router.push(`/vulnerabilities/${this.$route.params.id}`);
   }
 
   showPRModal() {
@@ -211,6 +285,7 @@ export default class FooterBar extends Vue {
   submitPR() {
     this.isPRModalVisible = false;
     this.$toast.success("Sumitted for review");
+    this.$router.push("/projects");
   }
 
   getModifiedVulnerabilities() {
@@ -223,17 +298,18 @@ export default class FooterBar extends Vue {
     }
     const mvs = JSON.parse(modifiedVulnerabilities);
     const vArr: string[] = Object.keys(mvs.ja);
-    const idsList = vArr
-      .filter(k => mvs.ja[parseInt(k)].vulnerability)
-      .map(k => {
-        return parseInt(k);
-      });
-    this.modifiedVulnerabilitiesIds = idsList;
-    return idsList;
+    const keyList = vArr.filter(k => mvs.ja[parseInt(k)].vulnerability);
+    const mvList = keyList.reduce((acc, curr) => {
+      acc[curr] = mvs.ja[curr];
+      return acc;
+    }, {});
+    this.modifiedVulnerabilitiesIds = keyList.map(k => parseInt(k));
+    return mvList;
   }
 
   getModifiedVulnerabilitiesCount() {
-    this.modifiedVulnerabilitiesCount = this.getModifiedVulnerabilities().length;
+    this.getModifiedVulnerabilities();
+    this.modifiedVulnerabilitiesCount = this.modifiedVulnerabilitiesIds.length;
   }
 
   async getBranch() {
