@@ -9,29 +9,24 @@
     <div v-if="mode === 'write'" class="vuln-read-options">
       <button
         class="akt-btn akt-btn--primary"
-        @click="showSaveModal"
+        @click="showCommitModal"
         :disabled="modifiedVulnerabilitiesCount == 0"
       >
         Save Changes ({{ modifiedVulnerabilitiesCount }})
       </button>
       <button
         class="akt-btn akt-btn--secondary"
-        @click="submitForReview"
-        :disabled="commitCount == 0"
+        @click="showPRModal"
+        :disabled="!isSubmissible"
       >
         Submit for Review
       </button>
     </div>
 
-    <modal-dialog v-show="isModalVisible" @close="closeModal">
-      <template v-slot:header><h4>Save changes</h4></template>
+    <modal-dialog v-show="isCommitModalVisible" @close="closeCommitModal">
+      <template v-slot:header><h4>Save Changes</h4></template>
       <template v-slot:body>
         <div v-if="modifiedVulnerabilitiesCount > 0">
-          <div class="commit__status">
-            <div>
-              Make sure to save after each vulnerability's translation change.
-            </div>
-          </div>
           <div class="commit">
             <div class="commit__label">
               <strong>What did you change?</strong>
@@ -68,6 +63,64 @@
         </button>
       </template>
     </modal-dialog>
+
+    <modal-dialog v-show="isPRModalVisible" @close="closePRModal">
+      <template v-slot:header><h4>Submit for Review</h4></template>
+      <template v-slot:body>
+        <div class="pr">
+          <div v-if="isSubmissible">
+            You have unsaved changes in translations. Save those changes before
+            submitting for review.
+          </div>
+          <div v-else>
+            <div v-if="commitCount > 0">
+              <div>
+                Submit vulnerability translations for review. Appknox report &
+                dashboard translations will be updated once admin approve these
+                changes.
+              </div>
+              <div class="pr__status">
+                <div>
+                  <div>
+                    Author: <strong>{{ editor }}</strong>
+                  </div>
+                  <div>
+                    Translation Session ID: <strong>{{ branch }}</strong>
+                  </div>
+                  <div>
+                    <strong>{{ commitCount }}</strong> saved changes.
+                  </div>
+                </div>
+              </div>
+              <div class="pr__label">
+                <strong>Any notes?</strong>
+              </div>
+              <div class="pr__edit">
+                <textarea
+                  class="pr__textarea"
+                  rows="2"
+                  v-model="prMsg"
+                ></textarea>
+              </div>
+            </div>
+            <div v-else class="pr__empty">
+              You don't have any saved changes to review!
+            </div>
+          </div>
+        </div>
+      </template>
+      <template
+        v-slot:footer
+        v-if="modifiedVulnerabilitiesCount == 0 && commitCount > 0"
+      >
+        <button
+          class="akt-btn akt-btn--icon akt-btn--secondary pr__btn"
+          @click="submitPR()"
+        >
+          <span>Submit</span>
+        </button>
+      </template>
+    </modal-dialog>
   </footer>
 </template>
 
@@ -83,26 +136,37 @@ import ModalDialog from "@/components/ModalDialog.vue";
   }
 })
 export default class FooterBar extends Vue {
-  private branch = "master";
-  private mode = "read";
+  private branch = localStorage.getItem("branch");
   private username = localStorage.getItem("username");
+  private editor = localStorage.getItem("editor");
 
+  private isCommitModalVisible = false;
+  private isPRModalVisible = false;
+
+  private mode = "read";
+  private commitCount = 0;
   private commitMsg = "";
   private commitValidationMsg = "";
-  private commitCount = 0;
-  private isModalVisible = false;
-
+  private prMsg = "";
   private modifiedVulnerabilitiesCount = 0;
   private modifiedVulnerabilitiesIds: number[] = [];
+  private isSubmissible = false;
 
   @Watch("$store.state.modifiedVulnerabilitiesCounter")
   private watchModifiedVulnerabilities() {
     this.getModifiedVulnerabilitiesCount();
+    this.isPRSubmissible();
   }
 
-  showSaveModal() {
+  isPRSubmissible() {
+    this.isSubmissible =
+      this.modifiedVulnerabilitiesCount == 0 && this.commitCount > 0;
+    return;
+  }
+
+  showCommitModal() {
     this.getModifiedVulnerabilitiesCount();
-    this.isModalVisible = true;
+    this.isCommitModalVisible = true;
     // this.getModifiedVulnerabilities();
     this.commitMsg = `Updated ja translations for vulnerabilities ${this.modifiedVulnerabilitiesIds
       .slice(0, 10)
@@ -110,12 +174,12 @@ export default class FooterBar extends Vue {
       this.modifiedVulnerabilitiesIds.length > 10 ? " & more" : ""
     }`;
   }
-  closeModal() {
-    this.isModalVisible = false;
+  closeCommitModal() {
+    this.isCommitModalVisible = false;
   }
   commitChanges() {
     if (!this.modifiedVulnerabilitiesCount) {
-      this.closeModal();
+      this.closeCommitModal();
       this.$toast.warning("No changes to save");
       return;
     }
@@ -127,7 +191,7 @@ export default class FooterBar extends Vue {
       this.commitValidationMsg = "Atleast 5 characters is required";
       return;
     }
-    this.closeModal();
+    this.closeCommitModal();
     this.commitMsg = "";
     this.commitValidationMsg = "";
     this.getModifiedVulnerabilitiesCount();
@@ -137,8 +201,16 @@ export default class FooterBar extends Vue {
     this.$toast.success("Changes saved");
   }
 
-  submitForReview() {
-    this.$toast("I'm a toast!");
+  showPRModal() {
+    this.getModifiedVulnerabilitiesCount();
+    this.isPRModalVisible = true;
+  }
+  closePRModal() {
+    this.isPRModalVisible = false;
+  }
+  submitPR() {
+    this.isPRModalVisible = false;
+    this.$toast.success("Sumitted for review");
   }
 
   getModifiedVulnerabilities() {
@@ -167,24 +239,53 @@ export default class FooterBar extends Vue {
   async getBranch() {
     const branch = localStorage.getItem("branch");
     if (branch) {
+      this.$store.commit("saveBranch", branch);
       this.branch = branch;
       return this.branch;
     }
 
+    const editor = localStorage.getItem("editor");
+    if (editor) {
+      this.$store.commit("saveEditor", editor);
+      this.editor = editor;
+    } else {
+      this.editor = this.username;
+    }
+
     return RepoBranchService.getAll("vulnerabilities").then(async response => {
       const branches: GithubRepoBranchResponse[] = response.data;
-      const regex = RegExp(`akt-${this.username}-[0-9]+`);
+      const regex = RegExp(`akt-${this.editor}-[0-9]+`);
       const userBranches = branches
         .filter(b => b.protected == false)
         .filter(b => regex.test(b.name));
       if (userBranches && userBranches[0]) {
         localStorage.setItem("branch", userBranches[0].name);
         this.branch = userBranches[0].name;
+        this.$store.commit("saveBranch", this.branch);
         return this.branch;
       }
 
       return this.branch;
     });
+  }
+
+  getEditor() {
+    const editor = localStorage.getItem("editor");
+    if (editor) {
+      this.$store.commit("saveEditor", editor);
+      this.editor = editor;
+    } else {
+      this.editor = this.username;
+    }
+  }
+
+  getCommitCount() {
+    const cc = localStorage.getItem("commitCount");
+    if (cc) {
+      const commitCount = parseInt(cc);
+      this.$store.commit("saveCommitCount", commitCount);
+      this.commitCount = commitCount;
+    }
   }
 
   setMode() {
@@ -209,6 +310,7 @@ export default class FooterBar extends Vue {
       return response.data;
     });
 
+    this.$store.commit("saveBranch", newBranchName);
     localStorage.setItem("branch", newBranchName);
     return;
   }
@@ -227,8 +329,11 @@ export default class FooterBar extends Vue {
 
   mounted() {
     this.getBranch();
+    this.getEditor();
+    this.getCommitCount();
     this.setMode();
     this.getModifiedVulnerabilitiesCount();
+    this.isPRSubmissible();
   }
 }
 </script>
@@ -252,15 +357,39 @@ export default class FooterBar extends Vue {
 
 .commit {
   padding: 0.8rem 1.15rem 0;
+  &__label {
+    padding-bottom: 0.8em;
+  }
+  &__textarea {
+    width: 100%;
+    border: 2px solid darken($color-bg, 10%);
+    border-radius: $border-radius;
+    font-size: 0.9rem;
+    font-family: inherit;
+    padding: 0.2rem 0.5rem;
+  }
+  &__error {
+    color: $color-error;
+    font-size: 0.8rem;
+  }
+  &__btn {
+    font-size: 0.95rem;
+  }
+  &__empty {
+    text-align: center;
+    padding: 2rem 1rem 0.5rem;
+  }
+}
+
+.pr {
+  padding: 0.8rem 1.15rem 0;
   &__status {
-    font-style: italic;
-    padding: 0.5rem 1rem;
-    border: 1px solid lighten($color-primary, 30%);
-    background: lighten($color-primary, 35%);
-    color: $color-primary;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    padding: 1rem 0;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
   }
   &__label {
     padding-bottom: 0.8em;

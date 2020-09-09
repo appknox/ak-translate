@@ -22,7 +22,10 @@
           <slot name="body"></slot>
         </section>
         <footer class="modal-footer">
-          <slot name="footer"></slot>
+          <div class="modal-footer__top"><slot name="footer"></slot></div>
+          <div class="modal-footer__bottom">
+            <slot name="footer-info" class="modal-footer__bottom"></slot>
+          </div>
         </footer>
       </div>
     </div>
@@ -61,7 +64,7 @@ export default class ModalDialog extends Vue {
   flex-direction: column;
   border-radius: $border-radius;
   min-width: 30rem;
-  max-width: 80%;
+  max-width: 35rem;
 }
 
 .modal-header {
@@ -74,10 +77,19 @@ export default class ModalDialog extends Vue {
 
 .modal-footer {
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 1rem;
+  flex-direction: column;
   background: #f8f8fa;
+  &__top {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 1rem;
+  }
+  &__bottom {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
 }
 
 .modal-body {

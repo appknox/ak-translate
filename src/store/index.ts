@@ -17,6 +17,9 @@ export default new Vuex.Store({
       ja: {}
     },
     modifiedVulnerabilitiesCounter: 0,
+    branch: "master",
+    editor: "",
+    commitCount: 0,
   },
   getters: {
     getVulnerabilities: state => {
@@ -39,6 +42,15 @@ export default new Vuex.Store({
     },
     getModifiedVulnerabilityFull: state => (id: number, lang: string) => {
       return state.modifiedVulnerabilities[lang][id];
+    },
+    getBranch: state => {
+      return state.branch;
+    },
+    getEditor: state => {
+      return state.editor;
+    },
+    getCommitCount: state => {
+      return state.commitCount;
     }
   },
   mutations: {
@@ -80,7 +92,19 @@ export default new Vuex.Store({
       state.modifiedVulnerabilities = payload;
       state.modifiedVulnerabilitiesCounter = state.modifiedVulnerabilitiesCounter + 1;
       return;
-    }
+    },
+    saveBranch(state, payload) {
+      state.branch = payload;
+      return;
+    },
+    saveEditor(state, payload) {
+      state.editor = payload;
+      return;
+    },
+    saveCommitCount(state, payload) {
+      state.commitCount = payload;
+      return;
+    },
   },
   actions: {},
   modules: {}
