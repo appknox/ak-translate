@@ -10,9 +10,10 @@
       <button
         class="akt-btn akt-btn--primary"
         @click="showCommitModal"
-        :disabled="modifiedVulnerabilitiesCount == 0"
+        :disabled="modifiedVulnerabilitiesCount == 0 || isCommitting"
       >
-        Save Changes ({{ modifiedVulnerabilitiesCount }})
+        <span v-if="isCommitting">Saving...</span>
+        <span v-else>Save Changes ({{ modifiedVulnerabilitiesCount }})</span>
       </button>
       <button
         class="akt-btn akt-btn--secondary"
@@ -150,6 +151,7 @@ export default class FooterBar extends Vue {
   private commitCount = 0;
   private commitMsg = "";
   private commitValidationMsg = "";
+  private isCommitting = false;
   private prMsg = "";
   private modifiedVulnerabilitiesCount = 0;
   private modifiedVulnerabilitiesIds: number[] = [];
@@ -159,7 +161,6 @@ export default class FooterBar extends Vue {
   private watchModifiedVulnerabilities() {
     this.getModifiedVulnerabilitiesCount();
     this.isPRSubmissible();
-    console.log("trigger");
   }
 
   isPRSubmissible() {
@@ -185,6 +186,8 @@ export default class FooterBar extends Vue {
     const REPO = "vulnerabilities";
     const lang = "ja";
     const langDir = `locales/${lang}`;
+    const RAW_BASE_URL = `https://raw.githubusercontent.com/appknox/vulnerabilities/${this.branch}`;
+
     const fieldFileMap = {
       name: "name",
       question: "question",
@@ -198,53 +201,51 @@ export default class FooterBar extends Vue {
     };
 
     const mvList = this.getModifiedVulnerabilities();
-    await Object.keys(mvList).forEach(async k => {
-      const origVuln = this.$store.getters.getVulnerability(k, lang);
-      await Object.keys(mvList[k].vulnerability).forEach(async field => {
-        const currentFile: GithubRepoContentResponse = await RepoContentService.get(
+
+    for (const id in mvList) {
+      const origVuln = this.$store.getters.getVulnerability(id, lang);
+      const modifiedVuln = mvList[id];
+      const vulnUrl = `${RAW_BASE_URL}/${langDir}/${origVuln.key}`;
+      for (const field in modifiedVuln.vulnerability) {
+        const remoteFile: GithubRepoContentResponse = await RepoContentService.get(
           REPO,
           this.branch,
           `${langDir}/${origVuln.key}/${fieldFileMap[field]}.md`
         ).then(response => response.data);
 
-        console.log(
-          REPO,
-          this.branch,
-          `/${langDir}/${origVuln.key}/${fieldFileMap[field]}.md`,
-          Base64.encode(mvList[k].vulnerability[field]),
-          currentFile.sha,
-          `Updated translation for vulnerability ${k} ${fieldFileMap[field]}`
-        );
         await RepoContentService.put(
           REPO,
           this.branch,
           `${langDir}/${origVuln.key}/${fieldFileMap[field]}.md`,
-          Base64.encode(mvList[k].vulnerability[field]),
-          currentFile.sha,
-          `Updated ${fieldFileMap[field]} of vulnerability ${k} translation`
+          Base64.encode(mvList[id].vulnerability[field]),
+          remoteFile.sha,
+          `Updated ${fieldFileMap[field]} of vulnerability ${id} translation`
         );
-      });
-      this.$store.commit("saveModifiedVulnerability", {
-        lang: lang,
-        id: k,
-        hash: mvList[k].hash,
-        vulnerability: null
-      });
-      console.log({
-        lang: lang,
-        id: k,
-        hash: mvList[k].hash,
-        vulnerability: null
-      });
-      return;
-    });
 
+        const response = await fetch(`${vulnUrl}/${fieldFileMap[field]}.md`);
+        const content = await response.text();
+        await this.$store.commit("updateVulnerabilityField", {
+          lang: `${lang}`,
+          id: origVuln.id,
+          field: field,
+          value: content
+        });
+      }
+      this.$store.commit("saveModifiedVulnerability", {
+        lang,
+        id,
+        hash: mvList[id].hash,
+        vulnerability: null
+      });
+    }
     const modifiedVulnerabilities = this.$store.getters
       .getModifiedVulnerabilities;
     localStorage.setItem(
       "modifiedVulnerabilities",
       JSON.stringify(modifiedVulnerabilities)
     );
+    const vulnerabilities = this.$store.getters.getVulnerabilities;
+    localStorage.setItem("vulnerabilities", JSON.stringify(vulnerabilities));
   }
 
   commitChanges() {
@@ -262,17 +263,23 @@ export default class FooterBar extends Vue {
       return;
     }
 
-    this.commitTranslationsToGithub();
-
-    this.closeCommitModal();
-    this.commitMsg = "";
-    this.commitValidationMsg = "";
-    this.getModifiedVulnerabilitiesCount();
-    const commitCount = localStorage.getItem("commitCount") || "0";
-    this.commitCount = parseInt(commitCount) + 1;
-    localStorage.setItem("commitCount", this.commitCount + "");
-    this.$toast.success("Changes saved");
-    this.$router.push(`/vulnerabilities/${this.$route.params.id}`);
+    try {
+      this.isCommitting = true;
+      this.commitTranslationsToGithub();
+      this.closeCommitModal();
+      this.commitMsg = "";
+      this.commitValidationMsg = "";
+      this.getModifiedVulnerabilitiesCount();
+      const commitCount = localStorage.getItem("commitCount") || "0";
+      this.commitCount = parseInt(commitCount) + 1;
+      localStorage.setItem("commitCount", this.commitCount + "");
+      this.$toast.success("Changes saved");
+      this.$router.push(`/vulnerabilities/${this.$route.params.id}`);
+    } catch (e) {
+      this.$toast.error("Something went wrong during save. Please try again.");
+    } finally {
+      this.isCommitting = false;
+    }
   }
 
   showPRModal() {

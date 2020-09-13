@@ -17,6 +17,7 @@ export default new Vuex.Store({
       ja: {}
     },
     modifiedVulnerabilitiesCounter: 0,
+    vulnerabilitiesCounter: 0,
     branch: "master",
     editor: "",
     commitCount: 0,
@@ -57,6 +58,12 @@ export default new Vuex.Store({
     saveVulnerability(state, payload) {
       state.vulnerabilities[payload.lang][payload.vulnerability.id] =
         payload.vulnerability;
+      return;
+    },
+    updateVulnerabilityField(state, payload) {
+      state.vulnerabilities[payload.lang][payload.id][payload.field] =
+        payload.value;
+      state.vulnerabilitiesCounter = state.vulnerabilitiesCounter + 1;
       return;
     },
     saveModifiedVulnerabilityField(state, payload) {
