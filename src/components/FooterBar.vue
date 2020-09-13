@@ -69,7 +69,7 @@
       <template v-slot:header><h4>Submit for Review</h4></template>
       <template v-slot:body>
         <div class="pr">
-          <div v-if="isSubmissible">
+          <div v-if="!isSubmissible">
             You have unsaved changes in translations. Save those changes before
             submitting for review.
           </div>
@@ -110,10 +110,7 @@
           </div>
         </div>
       </template>
-      <template
-        v-slot:footer
-        v-if="modifiedVulnerabilitiesCount == 0 && commitCount > 0"
-      >
+      <template v-slot:footer v-if="isSubmissible">
         <button
           class="akt-btn akt-btn--icon akt-btn--secondary pr__btn"
           @click="submitPR()"
@@ -128,10 +125,12 @@
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
 import RepoBranchService from "@/services/RepoBranchService";
-import GithubRepoBranchResponse from "@/types/github/GithubRepoBranchResponse";
 import ModalDialog from "@/components/ModalDialog.vue";
 import RepoContentService from "@/services/RepoContentService";
+import RepoPullService from "@/services/RepoPullService";
 import GithubRepoContentResponse from "@/types/github/GithubRepoContentResponse";
+import GithubRepoBranchResponse from "@/types/github/GithubRepoBranchResponse";
+import GithubRepoPullResponse from "@/types/github/GithubRepoPullResponse";
 import { Base64 } from "js-base64";
 
 @Component({
@@ -290,9 +289,27 @@ export default class FooterBar extends Vue {
     this.isPRModalVisible = false;
   }
   submitPR() {
-    this.isPRModalVisible = false;
-    this.$toast.success("Sumitted for review");
-    this.$router.push("/projects");
+    try {
+      this.submitPullRequest();
+      this.isPRModalVisible = false;
+      this.commitCount = 0;
+      // TODO: this.branch = "";
+      this.$toast.success("Sumitted for review");
+      this.$router.push("/projects");
+    } catch (e) {
+      this.$toast.error(
+        "Something went wrong during submission for review. Please try again."
+      );
+    }
+  }
+
+  async submitPullRequest() {
+    return await RepoPullService.post(
+      "vulnerabilities",
+      this.branch,
+      "Updated ja traslations via ak-translate",
+      `Author: ${this.editor}\n\n${this.prMsg}`
+    );
   }
 
   getModifiedVulnerabilities() {
