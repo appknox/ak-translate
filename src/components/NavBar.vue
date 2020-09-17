@@ -7,31 +7,21 @@
     <slot></slot>
     <div class="navbar__right">
       <slot name="right"></slot>
-      <div class="logged">{{ username }}</div>
+      <div class="logged">{{ editor }}</div>
     </div>
   </header>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import GithubUserService from "../services/GithubUserService";
 
 @Component
 export default class NavBar extends Vue {
-  // @Prop() private breadcrumb!: BreadcrumbLinkType[];
-
-  private username = "";
+  private editor = "";
 
   fetchUser() {
-    const username = localStorage.getItem("username");
-    if (username) {
-      this.username = username;
-      return;
-    }
-    return GithubUserService.get().then(response => {
-      this.username = response.data.login;
-      localStorage.setItem("username", this.username);
-    });
+    const editor = localStorage.getItem("editor") || "";
+    this.editor = editor;
   }
 
   mounted() {

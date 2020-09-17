@@ -1,8 +1,13 @@
 import http from "../http-common";
 
 class GithubUserService {
-  get() {
-    return http.get("/user");
+  get(token: string) {
+    return http.get("/user", {
+      headers: {
+        "Content-type": "application/json",
+        "Authorization": `Token ${token}`,
+      }
+    });
   }
 }
 

@@ -130,7 +130,6 @@ import RepoContentService from "@/services/RepoContentService";
 import RepoPullService from "@/services/RepoPullService";
 import GithubRepoContentResponse from "@/types/github/GithubRepoContentResponse";
 import GithubRepoBranchResponse from "@/types/github/GithubRepoBranchResponse";
-import GithubRepoPullResponse from "@/types/github/GithubRepoPullResponse";
 import { Base64 } from "js-base64";
 
 @Component({

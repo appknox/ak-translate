@@ -1,38 +1,61 @@
 import Vue from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
 import Home from "../views/Home.vue";
+import store from '../store';
 
 Vue.use(VueRouter);
+
+function guard(to, from, next){
+  if (localStorage.getItem("token") && localStorage.getItem("username") && localStorage.getItem("editor")) {
+    next();
+  } else{
+    next('/login');
+  }
+}
 
 const routes: Array<RouteConfig> = [
   {
     path: "/",
-    name: "Home",
-    redirect: '/projects',
+    name: "home",
+    beforeEnter: guard,
+    redirect: { name: "projects"}
   },
   {
-    path: "/projects",
-    name: "Projects",
+    path: "/login",
+    name: "login",
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () =>
-      import(/* webpackChunkName: "projects" */ "../views/Projects.vue")
+      import(/* webpackChunkName: "login" */ "../views/LoginView.vue")
+  },
+  {
+    path: "/projects",
+    name: "projects",
+    beforeEnter: guard,
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(/* webpackChunkName: "projects" */ "../views/ProjectsView.vue")
   },
   {
     path: "/vulnerabilities",
-    name: "Vulnerabilities",
+    name: "vulnerabilities",
+    beforeEnter: guard,
     redirect: '/vulnerabilities/1',
   },
   {
     path: "/vulnerabilities/:id",
-    name: "Vulnerability",
+    name: "vulnerability",
+    beforeEnter: guard,
     component: () =>
       import(/* webpackChunkName: "projects" */ "../views/VulnerabilityView.vue"),
   },
   {
     path: "/vulnerabilities/:id/translate",
-    name: "Translate",
+    name: "translate",
+    beforeEnter: guard,
     component: () =>
       import(
         /* webpackChunkName: "vulnerability_translate" */ "../views/VulnerabilityTranslateView.vue"
