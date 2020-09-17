@@ -28,23 +28,50 @@ a {
 
 .akt-btn {
   padding: 0.5rem 1em;
-  border: none;
+  border: 1px solid transparent;
   border-radius: $border-radius;
   display: flex;
   align-items: center;
+  &--icon-text {
+    padding: 0.42rem 0.9em;
+    .material-design-icon {
+      height: 1.3em;
+      width: 1.3em;
+      & > .material-design-icon__svg {
+        height: 100%;
+        width: 100%;
+        bottom: 0;
+      }
+    }
+    &__label {
+      margin-left: 0.5rem;
+    }
+  }
   &--icon {
-    padding: 0.4rem 0.9em;
+    padding: 0.4rem 0.6em;
+    .material-design-icon {
+      height: 1.3em;
+      width: 1.3em;
+      & > .material-design-icon__svg {
+        height: 100%;
+        width: 100%;
+        bottom: 0;
+      }
+    }
   }
 
   &--primary {
     background: $color-primary;
     color: white;
+    border-color: $color-primary;
     &:hover:not(:disabled), &:active:not(:disabled), &:focus:not(:disabled) {
       background: darken($color-primary, 5%);
+      border-color: darken($color-primary, 5%);
       cursor: pointer;
     }
     &:disabled {
       background: lighten($color-primary, 20%);
+      border-color: lighten($color-primary, 20%);
       cursor: not-allowed;
     }
     svg {
@@ -57,12 +84,15 @@ a {
   &--secondary {
     background: $color-secondary;
     color: white;
+    border-color: $color-secondary;
     &:hover:not(:disabled), &:active:not(:disabled), &:focus:not(:disabled) {
       background: darken($color-secondary, 5%);
+      border-color: darken($color-secondary, 5%);
       cursor: pointer;
     }
     &:disabled {
       background: lighten($color-secondary, 20%);
+      border-color: lighten($color-secondary, 20%);
       cursor: not-allowed;
     }
     svg {
@@ -70,6 +100,47 @@ a {
       path {
         fill: white;
       }
+    }
+  }
+  &--success {
+    background: $color-success;
+    color: white;
+    border-color: $color-success;
+    &:hover:not(:disabled), &:active:not(:disabled), &:focus:not(:disabled) {
+      background: darken($color-success, 5%);
+      border-color: darken($color-success, 5%);
+      cursor: pointer;
+    }
+    &:disabled {
+      background: lighten($color-success, 20%);
+      border-color: lighten($color-success, 20%);
+      cursor: not-allowed;
+    }
+    svg {
+      margin-right: 0.5rem;
+      path {
+        fill: white;
+      }
+    }
+  }
+  &--clear--default {
+    background: transparent;
+    color: $color-gray;
+    border-color: $color-gray;
+    &:hover:not(:disabled), &:active:not(:disabled), &:focus:not(:disabled) {
+      background: $color-gray;
+      color: white;
+      cursor: pointer;
+    }
+  }
+  &--clear--secondary {
+    background: transparent;
+    color: $color-secondary;
+    border-color: $color-secondary;
+    &:hover:not(:disabled), &:active:not(:disabled), &:focus:not(:disabled) {
+      background: $color-secondary;
+      color: white;
+      cursor: pointer;
     }
   }
 }

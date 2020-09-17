@@ -7,6 +7,8 @@
 <script lang="ts">
 import { Vue } from "vue-property-decorator";
 
+import "vue-material-design-icons/styles.css";
+
 import VueMarkdownEditor from "@kangc/v-md-editor";
 import enUS from "@kangc/v-md-editor/lib/lang/en-US";
 import "@kangc/v-md-editor/lib/style/base-editor.css";

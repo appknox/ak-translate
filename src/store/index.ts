@@ -95,6 +95,18 @@ export default new Vuex.Store({
       state.modifiedVulnerabilitiesCounter = state.modifiedVulnerabilitiesCounter + 1;
       return;
     },
+    resetModifiedVulnerabilities(state) {
+      for (const lang of ["en", "ja"]) {
+        Object.values(state.vulnerabilities[lang]).forEach((v: any) => {
+          state.modifiedVulnerabilities[lang][v.id] = {
+            hash: hash(v),
+            vulnerability: null
+          };
+        });
+      }
+      state.modifiedVulnerabilitiesCounter = state.modifiedVulnerabilitiesCounter + 1;
+      return;
+    },
     saveModifiedVulnerabilities(state, payload) {
       state.modifiedVulnerabilities = payload;
       state.modifiedVulnerabilitiesCounter = state.modifiedVulnerabilitiesCounter + 1;

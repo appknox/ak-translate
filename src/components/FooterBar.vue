@@ -16,6 +16,13 @@
         <span v-else>Save Changes ({{ modifiedVulnerabilitiesCount }})</span>
       </button>
       <button
+        v-if="modifiedVulnerabilitiesCount > 0"
+        class="akt-btn akt-btn--icon akt-btn--clear--secondary"
+        @click="showDiscardModal"
+      >
+        <restore-icon />
+      </button>
+      <button
         class="akt-btn akt-btn--secondary"
         @click="showPRModal"
         :disabled="!isSubmissible"
@@ -47,28 +54,48 @@
       </template>
       <template v-slot:footer v-if="modifiedVulnerabilitiesCount > 0">
         <button
-          class="akt-btn akt-btn--icon akt-btn--primary commit__btn"
+          class="akt-btn akt-btn--icon-text akt-btn--primary commit__btn"
           @click="commitChanges()"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="18px"
-            height="18px"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"
-            />
-          </svg>
-          <span>Save</span>
+          <cloud-upload-icon />
+          <span class="akt-btn--icon-text__label">Save</span>
+        </button>
+      </template>
+    </modal-dialog>
+
+    <modal-dialog v-show="isDiscardModalVisible" @close="closeDiscardModal">
+      <template v-slot:header><h4>Discard unsaved changes</h4></template>
+      <template v-slot:body>
+        <div class="modal-body">
+          <div v-if="modifiedVulnerabilitiesCount > 0">
+            Translation chanes you made in
+            {{ modifiedVulnerabilitiesCount }} vulnerabilities since the last
+            save would be lost. Do you want to delete?
+          </div>
+          <div v-else>No local changes to discard!</div>
+        </div>
+      </template>
+      <template v-slot:footer v-if="modifiedVulnerabilitiesCount > 0">
+        <button
+          class="akt-btn akt-btn--clear--default commit__btn"
+          @click="closeDiscardModal()"
+        >
+          <span>Cancel</span>
+        </button>
+        <button
+          class="akt-btn akt-btn--icon-text akt-btn--secondary commit__btn"
+          @click="discardChanges()"
+        >
+          <delete-forever-icon />
+          <span class="akt-btn--icon-text__label">Delete</span>
         </button>
       </template>
     </modal-dialog>
 
     <modal-dialog v-show="isPRModalVisible" @close="closePRModal">
-      <template v-slot:header><h4>Submit for Review</h4></template>
+      <template v-slot:header><h4>Finish translating</h4></template>
       <template v-slot:body>
-        <div class="pr">
+        <div class="modal-body">
           <div v-if="!isSubmissible">
             You have unsaved changes in translations. Save those changes before
             submitting for review.
@@ -76,9 +103,11 @@
           <div v-else>
             <div v-if="commitCount > 0">
               <div>
-                Submit vulnerability translations for review. Appknox report &
-                dashboard translations will be updated once admin approve these
-                changes.
+                Done with translations editing? Submit your changes for review.
+              </div>
+              <div class="pr__notice">
+                Appknox report & dashboard translations will be updated once
+                admin approve these changes.
               </div>
               <div class="pr__status">
                 <div>
@@ -94,7 +123,7 @@
                 </div>
               </div>
               <div class="pr__label">
-                <strong>Any notes?</strong>
+                <strong>Any notes for the reviewer?</strong>
               </div>
               <div class="pr__edit">
                 <textarea
@@ -112,10 +141,11 @@
       </template>
       <template v-slot:footer v-if="isSubmissible">
         <button
-          class="akt-btn akt-btn--icon akt-btn--secondary pr__btn"
+          class="akt-btn akt-btn--icon akt-btn--success pr__btn"
           @click="submitPR()"
         >
-          <span>Submit</span>
+          <check-icon />
+          <span class="akt-btn--icon-text__label">Submit for Review</span>
         </button>
       </template>
     </modal-dialog>
@@ -131,10 +161,18 @@ import RepoPullService from "@/services/RepoPullService";
 import GithubRepoContentResponse from "@/types/github/GithubRepoContentResponse";
 import GithubRepoBranchResponse from "@/types/github/GithubRepoBranchResponse";
 import { Base64 } from "js-base64";
+import RestoreIcon from "vue-material-design-icons/Restore.vue";
+import CloudUploadIcon from "vue-material-design-icons/CloudUpload.vue";
+import DeleteForeverIcon from "vue-material-design-icons/DeleteForever.vue";
+import CheckIcon from "vue-material-design-icons/Check.vue";
 
 @Component({
   components: {
-    ModalDialog
+    ModalDialog,
+    RestoreIcon,
+    CloudUploadIcon,
+    DeleteForeverIcon,
+    CheckIcon
   }
 })
 export default class FooterBar extends Vue {
@@ -144,6 +182,7 @@ export default class FooterBar extends Vue {
 
   private isCommitModalVisible = false;
   private isPRModalVisible = false;
+  private isDiscardModalVisible = false;
 
   private mode = "read";
   private commitCount = 0;
@@ -280,6 +319,28 @@ export default class FooterBar extends Vue {
     }
   }
 
+  showDiscardModal() {
+    this.getModifiedVulnerabilitiesCount();
+    this.isDiscardModalVisible = true;
+  }
+
+  closeDiscardModal() {
+    this.isDiscardModalVisible = false;
+  }
+  discardChanges() {
+    this.$store.commit("resetModifiedVulnerabilities");
+    const modifiedVulnerabilities = this.$store.getters
+      .getModifiedVulnerabilities;
+    localStorage.setItem(
+      "modifiedVulnerabilities",
+      JSON.stringify(modifiedVulnerabilities)
+    );
+
+    this.closeDiscardModal();
+    this.$toast.error("Local changes cleared");
+    this.$router.push(`/vulnerabilities/${this.$route.params.id}`);
+  }
+
   showPRModal() {
     this.getModifiedVulnerabilitiesCount();
     this.isPRModalVisible = true;
@@ -290,10 +351,21 @@ export default class FooterBar extends Vue {
   submitPR() {
     try {
       this.submitPullRequest();
+      this.$store.commit("resetModifiedVulnerabilities");
+
       this.isPRModalVisible = false;
+
       this.commitCount = 0;
-      // TODO: this.branch = "";
-      this.$toast.success("Sumitted for review");
+      this.$store.commit("saveCommitCount", this.commitCount);
+      localStorage.setItem("commitCount", this.commitCount + "");
+
+      this.branch = "master";
+      this.$store.commit("saveBranch", this.branch);
+      localStorage.setItem("branch", this.branch);
+
+      this.$toast.success("Succesfully submitted for review. Thank you!", {
+        timeout: false
+      });
       this.$router.push("/projects");
     } catch (e) {
       this.$toast.error(
@@ -454,6 +526,10 @@ export default class FooterBar extends Vue {
   }
 }
 
+.modal-body {
+  padding: 0.8rem 1.15rem 1rem;
+}
+
 .commit {
   padding: 0.8rem 1.15rem 0;
   &__label {
@@ -473,6 +549,7 @@ export default class FooterBar extends Vue {
   }
   &__btn {
     font-size: 0.95rem;
+    margin-left: 0.7rem;
   }
   &__empty {
     text-align: center;
@@ -489,6 +566,10 @@ export default class FooterBar extends Vue {
     display: flex;
     align-items: flex-start;
     width: 100%;
+  }
+  &__notice {
+    color: lighten($color-gray, 20%);
+    padding-top: 1rem;
   }
   &__label {
     padding-bottom: 0.8em;
