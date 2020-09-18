@@ -58,6 +58,7 @@ export default new Vuex.Store({
     saveVulnerability(state, payload) {
       state.vulnerabilities[payload.lang][payload.vulnerability.id] =
         payload.vulnerability;
+      state.vulnerabilitiesCounter = state.vulnerabilitiesCounter + 1;
       return;
     },
     updateVulnerabilityField(state, payload) {
