@@ -46,7 +46,7 @@ export default class ModalDialog extends Vue {
 <style scoped lang="scss">
 .modal-backdrop {
   position: fixed;
-  top: 0;
+  top: $navbar-height;
   bottom: 0;
   left: 0;
   right: 0;
@@ -54,6 +54,7 @@ export default class ModalDialog extends Vue {
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow-x: scroll;
 }
 
 .modal {

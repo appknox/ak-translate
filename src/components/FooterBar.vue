@@ -1,8 +1,12 @@
 <template>
   <footer class="footer">
     <div v-if="mode === 'read'" class="vuln-read-options">
-      <button class="akt-btn akt-btn--primary" v-on:click="startWrite()">
-        Start Translation
+      <button
+        class="akt-btn akt-btn--icon-text akt-btn--primary"
+        v-on:click="startWrite()"
+      >
+        <translate-icon />
+        <span class="akt-btn--icon-text__label">Start Translation</span>
       </button>
       <!-- <button class="akt-btn akt-btn--secondary">Edit Vulnerabilities</button> -->
     </div>
@@ -13,7 +17,12 @@
         :disabled="modifiedVulnerabilitiesCount == 0 || isCommitting"
       >
         <span v-if="isCommitting">Saving...</span>
-        <span v-else>Save Changes ({{ modifiedVulnerabilitiesCount }})</span>
+        <span v-else>
+          <cloud-upload-icon />
+          <span class="akt-btn--icon-text__label"
+            >Save Changes ({{ modifiedVulnerabilitiesCount }})</span
+          >
+        </span>
       </button>
       <button
         v-if="modifiedVulnerabilitiesCount > 0"
@@ -27,7 +36,8 @@
         @click="showPRModal"
         :disabled="!isSubmissible"
       >
-        Submit for Review
+        <submit-icon />
+        <span class="akt-btn--icon-text__label">Submit for Review</span>
       </button>
     </div>
 
@@ -144,7 +154,7 @@
           class="akt-btn akt-btn--icon akt-btn--success pr__btn"
           @click="submitPR()"
         >
-          <check-icon />
+          <submit-icon />
           <span class="akt-btn--icon-text__label">Submit for Review</span>
         </button>
       </template>
@@ -164,7 +174,8 @@ import { Base64 } from "js-base64";
 import RestoreIcon from "vue-material-design-icons/Restore.vue";
 import CloudUploadIcon from "vue-material-design-icons/CloudUpload.vue";
 import DeleteForeverIcon from "vue-material-design-icons/DeleteForever.vue";
-import CheckIcon from "vue-material-design-icons/Check.vue";
+import TranslateIcon from "vue-material-design-icons/Translate.vue";
+import SubmitIcon from "vue-material-design-icons/TextBoxCheckOutline.vue";
 
 @Component({
   components: {
@@ -172,7 +183,8 @@ import CheckIcon from "vue-material-design-icons/Check.vue";
     RestoreIcon,
     CloudUploadIcon,
     DeleteForeverIcon,
-    CheckIcon
+    TranslateIcon,
+    SubmitIcon
   }
 })
 export default class FooterBar extends Vue {
@@ -459,8 +471,15 @@ export default class FooterBar extends Vue {
     }
   }
 
+  hasEditBranch() {
+    if (!this.branch || ["master", ""].includes(this.branch)) {
+      return false;
+    }
+    return true;
+  }
+
   setMode() {
-    if (this.branch !== "master") {
+    if (this.hasEditBranch()) {
       this.mode = "write";
     }
   }
@@ -490,7 +509,7 @@ export default class FooterBar extends Vue {
     this.getBranch();
     this.setMode();
 
-    if (this.branch !== "master") {
+    if (this.hasEditBranch()) {
       return;
     }
     const newBranchName = `akt-${this.username}-${Date.now()}`;
