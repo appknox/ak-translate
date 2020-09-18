@@ -25,6 +25,13 @@ a {
 .contain-width {
   height: 100%;
 }
+.contain-centered {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
 .akt-btn {
   padding: 0.5rem 1em;
