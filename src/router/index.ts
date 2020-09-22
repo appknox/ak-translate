@@ -8,7 +8,7 @@ Vue.use(VueRouter);
 function guard(to, from, next){
   if (localStorage.getItem("token") && localStorage.getItem("username") && localStorage.getItem("editor")) {
     next();
-  } else{
+  } else {
     next('/login');
   }
 }
@@ -60,7 +60,22 @@ const routes: Array<RouteConfig> = [
       import(
         /* webpackChunkName: "vulnerability_translate" */ "../views/VulnerabilityTranslateView.vue"
       ),
-  }
+    props: (route) => {
+      if (!store.getters.hasEditBranch) {
+        router.push({
+          name: "vulnerability",
+          params: {
+            id: route.params.id
+          }
+        });
+      }
+      return { id: route.params.id };
+    }
+  },
+  {
+    path: "*",
+    redirect: { name: "home"}
+  },
 ];
 
 const router = new VueRouter({

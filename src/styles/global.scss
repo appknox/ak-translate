@@ -151,3 +151,12 @@ a {
     }
   }
 }
+
+.not-found {
+  font-size: 1.1rem;
+  .alert-icon {
+    color: $color-waiting;
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+  }
+}

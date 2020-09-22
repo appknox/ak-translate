@@ -52,6 +52,13 @@ export default new Vuex.Store({
     },
     getCommitCount: state => {
       return state.commitCount;
+    },
+    hasEditBranch() {
+      const currentBranch = localStorage.getItem("branch");
+      if (!currentBranch || ["master", ""].includes(currentBranch)) {
+        return false;
+      }
+      return true;
     }
   },
   mutations: {
