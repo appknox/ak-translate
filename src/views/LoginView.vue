@@ -34,6 +34,20 @@
               <div class="login__error">{{ tokenInvalidMsg }}</div>
             </div>
             <div class="login__field">
+              <label
+                ><span class="login__label">Language</span>
+                <select class="login__input" v-model="language">
+                  <option
+                    v-for="option in translateLanguages"
+                    v-bind:value="option.key"
+                    v-bind:key="option.key"
+                  >
+                    {{ option.flag }} {{ option.text }}
+                  </option>
+                </select>
+              </label>
+            </div>
+            <div class="login__field">
               <button
                 class="login__btn akt-btn akt-btn--primary"
                 v-on:click="login()"
@@ -52,6 +66,8 @@
 import { Component, Vue } from "vue-property-decorator";
 import NavBar from "@/components/NavBar.vue";
 import GithubUserService from "../services/GithubUserService";
+import { TRANSLATION_LANGUAGES } from "@/shared/languages";
+import LanguageType from "@/types/LanguageType";
 
 @Component({
   components: {
@@ -62,9 +78,12 @@ export default class Login extends Vue {
   private token = "";
   private name = "";
   private username = "";
+  private language = "ja";
 
   private tokenInvalidMsg = "";
   private nameInvalidMsg = "";
+
+  private translateLanguages: LanguageType[] = [];
 
   validateToken() {
     if (this.token.length == 0) {
@@ -117,6 +136,7 @@ export default class Login extends Vue {
         await localStorage.setItem("username", this.username);
         await localStorage.setItem("token", this.token);
         await localStorage.setItem("editor", this.name);
+        await localStorage.setItem("language", this.language);
         this.$router.push({ name: "projects" });
         return;
       })
@@ -128,8 +148,10 @@ export default class Login extends Vue {
   }
 
   mounted() {
+    this.translateLanguages = TRANSLATION_LANGUAGES;
     this.token = localStorage.getItem("token") || "";
     this.name = localStorage.getItem("editor") || "";
+    this.language = localStorage.getItem("language") || "ja";
   }
 }
 </script>
