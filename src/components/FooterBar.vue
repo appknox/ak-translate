@@ -46,18 +46,7 @@
       <template v-slot:body>
         <div v-if="modifiedVulnerabilitiesCount > 0">
           <div class="commit">
-            <div class="commit__label">
-              <strong>What did you change?</strong>
-            </div>
-            <div class="commit__edit">
-              <textarea
-                class="commit__textarea"
-                rows="2"
-                v-model="commitMsg"
-                placeholder="Eg: Updated ja translations: 55 & 110"
-              ></textarea>
-              <div class="commit__error">{{ commitValidationMsg }}</div>
-            </div>
+            <div class="commit__label">{{ commitMsg }}</div>
           </div>
         </div>
         <div v-else class="commit__empty">No local changes to save!</div>
@@ -163,7 +152,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from "vue-property-decorator";
+import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import RepoBranchService from "@/services/RepoBranchService";
 import ModalDialog from "@/components/ModalDialog.vue";
 import RepoContentService from "@/services/RepoContentService";
@@ -188,6 +177,8 @@ import SubmitIcon from "vue-material-design-icons/TextBoxCheckOutline.vue";
   }
 })
 export default class FooterBar extends Vue {
+  @Prop() private language!: string;
+
   private branch = localStorage.getItem("branch") || "";
   private username = localStorage.getItem("username");
   private editor = localStorage.getItem("editor");
@@ -221,11 +212,13 @@ export default class FooterBar extends Vue {
   showCommitModal() {
     this.getModifiedVulnerabilitiesCount();
     this.isCommitModalVisible = true;
-    this.commitMsg = `Updated ja translations for vulnerabilities ${this.modifiedVulnerabilitiesIds
+    this.commitMsg = `You have modified ${
+      this.language
+    } translations for vulnerabilities ${this.modifiedVulnerabilitiesIds
       .slice(0, 10)
       .join(", ")}${
       this.modifiedVulnerabilitiesIds.length > 10 ? " & more" : ""
-    }`;
+    }. Save now?`;
   }
   closeCommitModal() {
     this.isCommitModalVisible = false;
@@ -233,7 +226,7 @@ export default class FooterBar extends Vue {
 
   async commitTranslationsToGithub() {
     const REPO = "vulnerabilities";
-    const lang = "ja";
+    const lang = this.language;
     const langDir = `locales/${lang}`;
     const RAW_BASE_URL = `https://raw.githubusercontent.com/appknox/vulnerabilities/${this.branch}`;
 
@@ -301,14 +294,6 @@ export default class FooterBar extends Vue {
     if (!this.modifiedVulnerabilitiesCount) {
       this.closeCommitModal();
       this.$toast.warning("No changes to save");
-      return;
-    }
-    if (!this.commitMsg) {
-      this.commitValidationMsg = "This cannot be empty";
-      return;
-    }
-    if (this.commitMsg.length < 5) {
-      this.commitValidationMsg = "Atleast 5 characters is required";
       return;
     }
 
@@ -390,7 +375,7 @@ export default class FooterBar extends Vue {
     return await RepoPullService.post(
       "vulnerabilities",
       this.branch,
-      "Updated ja traslations via ak-translate",
+      `Updated ${this.language} traslations via ak-translate`,
       `Author: ${this.editor}\n\n${this.prMsg}`
     );
   }
@@ -404,10 +389,12 @@ export default class FooterBar extends Vue {
       return [];
     }
     const mvs = JSON.parse(modifiedVulnerabilities);
-    const vArr: string[] = Object.keys(mvs.ja);
-    const keyList = vArr.filter(k => mvs.ja[parseInt(k)].vulnerability);
+    const vArr: string[] = Object.keys(mvs[this.language]);
+    const keyList = vArr.filter(
+      k => mvs[this.language][parseInt(k)].vulnerability
+    );
     const mvList = keyList.reduce((acc, curr) => {
-      acc[curr] = mvs.ja[curr];
+      acc[curr] = mvs[this.language][curr];
       return acc;
     }, {});
     this.modifiedVulnerabilitiesIds = keyList.map(k => parseInt(k));
