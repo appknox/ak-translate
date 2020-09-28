@@ -20,7 +20,8 @@ export default new Vuex.Store({
     branch: "master",
     editor: "",
     language: "",
-    commitCount: 0
+    commitCount: 0,
+    languageCounter: 0,
   },
   getters: {
     getVulnerabilityMapTemplate: state => {
@@ -71,20 +72,22 @@ export default new Vuex.Store({
     saveVulnerability(state, payload) {
       state.vulnerabilities[payload.lang][payload.vulnerability.id] =
         payload.vulnerability;
-      state.vulnerabilitiesCounter = state.vulnerabilitiesCounter + 1;
+      state.vulnerabilitiesCounter += 1;
       return;
     },
     updateVulnerabilityField(state, payload) {
       state.vulnerabilities[payload.lang][payload.id][payload.field] =
         payload.value;
-      state.vulnerabilitiesCounter = state.vulnerabilitiesCounter + 1;
+      state.vulnerabilitiesCounter += 1;
       return;
     },
     saveModifiedVulnerabilityField(state, payload) {
+      if (!state.modifiedVulnerabilities[payload.lang][payload.id]) {
+        initModVulnerabilities(state);
+      }
       state.modifiedVulnerabilities[payload.lang][payload.id]["vulnerability"] =
         payload.vulnerability;
-      state.modifiedVulnerabilitiesCounter =
-        state.modifiedVulnerabilitiesCounter + 1;
+      state.modifiedVulnerabilitiesCounter += 1;
       return;
     },
     saveModifiedVulnerability(state, payload) {
@@ -92,25 +95,11 @@ export default new Vuex.Store({
         hash: payload.hash,
         vulnerability: payload.vulnerability
       };
-      state.modifiedVulnerabilitiesCounter =
-        state.modifiedVulnerabilitiesCounter + 1;
+      state.modifiedVulnerabilitiesCounter += 1;
       return;
     },
     initModifiedVulnerabilities(state) {
-      for (const lang of LANGUAGES) {
-        Object.values(state.vulnerabilities[lang.key]).forEach((v: any) => {
-          if (!state.modifiedVulnerabilities[lang.key][v.id]) {
-            state.modifiedVulnerabilities[lang.key][v.id] = {
-              hash: "",
-              vulnerability: null
-            };
-          }
-          state.modifiedVulnerabilities[lang.key][v.id]["hash"] = hash(v);
-        });
-      }
-      state.modifiedVulnerabilitiesCounter =
-        state.modifiedVulnerabilitiesCounter + 1;
-      return;
+      initModVulnerabilities(state);
     },
     resetModifiedVulnerabilities(state) {
       for (const lang of LANGUAGES) {
@@ -121,14 +110,7 @@ export default new Vuex.Store({
           };
         });
       }
-      state.modifiedVulnerabilitiesCounter =
-        state.modifiedVulnerabilitiesCounter + 1;
-      return;
-    },
-    saveModifiedVulnerabilities(state, payload) {
-      state.modifiedVulnerabilities = payload;
-      state.modifiedVulnerabilitiesCounter =
-        state.modifiedVulnerabilitiesCounter + 1;
+      state.modifiedVulnerabilitiesCounter += 1;
       return;
     },
     initLanguage(state, payload) {
@@ -140,6 +122,12 @@ export default new Vuex.Store({
         }
         state.language = lang;
       }
+    },
+    switchLanguage(state, payload) {
+      state.language = payload;
+      localStorage.setItem("language", state.language);
+      state.languageCounter += 1;
+      return;
     },
     saveBranch(state, payload) {
       state.branch = payload;
@@ -157,3 +145,19 @@ export default new Vuex.Store({
   actions: {},
   modules: {}
 });
+
+function initModVulnerabilities(state) {
+  for (const lang of LANGUAGES) {
+    Object.values(state.vulnerabilities[lang.key]).forEach((v: any) => {
+      if (!state.modifiedVulnerabilities[lang.key][v.id]) {
+        state.modifiedVulnerabilities[lang.key][v.id] = {
+          hash: "",
+          vulnerability: null
+        };
+      }
+      state.modifiedVulnerabilities[lang.key][v.id]["hash"] = hash(v);
+    });
+  }
+  state.modifiedVulnerabilitiesCounter += 1;
+  return;
+}
