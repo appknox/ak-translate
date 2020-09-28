@@ -9,7 +9,7 @@ const githubClient = axios.create({
 });
 
 const vulnerabilityClient = axios.create({
-  baseURL: "http://localhost:8000", // TODO: replace baseURL
+  baseURL: `${process.env.VUE_APP_VULNERABILITY_API_HOST}`,
   headers: {
     "Content-Type": "application/json",
     "Accept": "application/json"
