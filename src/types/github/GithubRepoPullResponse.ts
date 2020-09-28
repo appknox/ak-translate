@@ -1,5 +1,3 @@
-import Vue from "vue";
-
 export default interface GithubRepoPullResponse {
   number: string;
   state: string;

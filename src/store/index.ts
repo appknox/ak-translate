@@ -1,28 +1,30 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import VulnerabilityType from "../types/VulnerabilityType";
-import VulnerabilitiesType from "../types/VulnerabilitiesType";
 import hash from "object-hash";
+import {
+  TRANSLATION_DEFAULT_LANGUAGE,
+  LANGUAGES,
+  vulnerabilityMapTpl
+} from "@/shared/languages";
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    vulnerabilities: {
-      en: {},
-      ja: {}
-    },
-    modifiedVulnerabilities: {
-      en: {},
-      ja: {}
-    },
+    vulnerabilities: vulnerabilityMapTpl(),
+    modifiedVulnerabilities: vulnerabilityMapTpl(),
     modifiedVulnerabilitiesCounter: 0,
     vulnerabilitiesCounter: 0,
     branch: "master",
     editor: "",
+    language: "",
     commitCount: 0,
+    languageCounter: 0,
   },
   getters: {
+    getVulnerabilityMapTemplate: state => {
+      return vulnerabilityMapTpl();
+    },
     getVulnerabilities: state => {
       return state.vulnerabilities;
     },
@@ -47,6 +49,9 @@ export default new Vuex.Store({
     getBranch: state => {
       return state.branch;
     },
+    getLanguage: state => {
+      return state.language;
+    },
     getEditor: state => {
       return state.editor;
     },
@@ -65,59 +70,61 @@ export default new Vuex.Store({
     saveVulnerability(state, payload) {
       state.vulnerabilities[payload.lang][payload.vulnerability.id] =
         payload.vulnerability;
-      state.vulnerabilitiesCounter = state.vulnerabilitiesCounter + 1;
+      state.vulnerabilitiesCounter += 1;
       return;
     },
     updateVulnerabilityField(state, payload) {
       state.vulnerabilities[payload.lang][payload.id][payload.field] =
         payload.value;
-      state.vulnerabilitiesCounter = state.vulnerabilitiesCounter + 1;
+      state.vulnerabilitiesCounter += 1;
       return;
     },
     saveModifiedVulnerabilityField(state, payload) {
+      if (!state.modifiedVulnerabilities[payload.lang][payload.id]) {
+        initModVulnerabilities(state);
+      }
       state.modifiedVulnerabilities[payload.lang][payload.id]["vulnerability"] =
         payload.vulnerability;
-      state.modifiedVulnerabilitiesCounter = state.modifiedVulnerabilitiesCounter + 1;
+      state.modifiedVulnerabilitiesCounter += 1;
       return;
     },
     saveModifiedVulnerability(state, payload) {
       state.modifiedVulnerabilities[payload.lang][payload.id] = {
-        "hash": payload.hash,
-        "vulnerability": payload.vulnerability
-      }
-      state.modifiedVulnerabilitiesCounter = state.modifiedVulnerabilitiesCounter + 1;
+        hash: payload.hash,
+        vulnerability: payload.vulnerability
+      };
+      state.modifiedVulnerabilitiesCounter += 1;
       return;
     },
     initModifiedVulnerabilities(state) {
-      for (const lang of ["en", "ja"]) {
-        Object.values(state.vulnerabilities[lang]).forEach((v: any) => {
-          if (!state.modifiedVulnerabilities[lang][v.id]) {
-            state.modifiedVulnerabilities[lang][v.id] = {
-              hash: "",
-              vulnerability: null
-            };
-          }
-          state.modifiedVulnerabilities[lang][v.id]["hash"] = hash(v);
-        });
-      }
-      state.modifiedVulnerabilitiesCounter = state.modifiedVulnerabilitiesCounter + 1;
-      return;
+      initModVulnerabilities(state);
     },
     resetModifiedVulnerabilities(state) {
-      for (const lang of ["en", "ja"]) {
-        Object.values(state.vulnerabilities[lang]).forEach((v: any) => {
-          state.modifiedVulnerabilities[lang][v.id] = {
+      for (const lang of LANGUAGES) {
+        Object.values(state.vulnerabilities[lang.key]).forEach((v: any) => {
+          state.modifiedVulnerabilities[lang.key][v.id] = {
             hash: hash(v),
             vulnerability: null
           };
         });
       }
-      state.modifiedVulnerabilitiesCounter = state.modifiedVulnerabilitiesCounter + 1;
+      state.modifiedVulnerabilitiesCounter += 1;
       return;
     },
-    saveModifiedVulnerabilities(state, payload) {
-      state.modifiedVulnerabilities = payload;
-      state.modifiedVulnerabilitiesCounter = state.modifiedVulnerabilitiesCounter + 1;
+    initLanguage(state, payload) {
+      if (!state.language) {
+        let lang = localStorage.getItem("language");
+        if (!lang) {
+          localStorage.setItem("language", TRANSLATION_DEFAULT_LANGUAGE);
+          lang = TRANSLATION_DEFAULT_LANGUAGE;
+        }
+        state.language = lang;
+      }
+    },
+    switchLanguage(state, payload) {
+      state.language = payload;
+      localStorage.setItem("language", state.language);
+      state.languageCounter += 1;
       return;
     },
     saveBranch(state, payload) {
@@ -131,8 +138,24 @@ export default new Vuex.Store({
     saveCommitCount(state, payload) {
       state.commitCount = payload;
       return;
-    },
+    }
   },
   actions: {},
   modules: {}
 });
+
+function initModVulnerabilities(state) {
+  for (const lang of LANGUAGES) {
+    Object.values(state.vulnerabilities[lang.key]).forEach((v: any) => {
+      if (!state.modifiedVulnerabilities[lang.key][v.id]) {
+        state.modifiedVulnerabilities[lang.key][v.id] = {
+          hash: "",
+          vulnerability: null
+        };
+      }
+      state.modifiedVulnerabilities[lang.key][v.id]["hash"] = hash(v);
+    });
+  }
+  state.modifiedVulnerabilitiesCounter += 1;
+  return;
+}

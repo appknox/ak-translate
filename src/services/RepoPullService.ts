@@ -1,8 +1,13 @@
-import http from "../http-common";
+import { githubClient } from "../http-common";
 
 class RepoPullService {
-  post(repo: string = "vulnerabilities", branch: string, title: string, body: string) {
-    return http.post(`/repos/appknox/${repo}/pulls`, {
+  post(
+    repo: string = "vulnerabilities",
+    branch: string,
+    title: string,
+    body: string
+  ) {
+    return githubClient.post(`/repos/appknox/${repo}/pulls`, {
       head: branch,
       base: "master",
       title: title,
