@@ -259,9 +259,9 @@ export default class FooterBar extends Vue {
           REPO,
           this.branch,
           `${langDir}/${origVuln.key}/${fieldFileMap[field]}.md`,
-          Base64.encode(mvList[id].vulnerability[field]),
+          Base64.encode(mvList[id].vulnerability[field].content),
           remoteFile.sha,
-          `Updated ${fieldFileMap[field]} of vulnerability ${id} translation`
+          `Updated ${fieldFileMap[field]} of vulnerability ${id} ${this.language} translation`
         );
 
         const response = await fetch(`${vulnUrl}/${fieldFileMap[field]}.md`);
@@ -308,7 +308,9 @@ export default class FooterBar extends Vue {
       this.commitCount = parseInt(commitCount) + 1;
       localStorage.setItem("commitCount", this.commitCount + "");
       this.$toast.success("Changes saved");
-      this.$router.push(`/vulnerabilities/${this.$route.params.id}`);
+      this.$router
+        .push(`/vulnerabilities/${this.$route.params.id}`)
+        .catch(() => undefined);
     } catch (e) {
       this.$toast.error("Something went wrong during save. Please try again.");
     } finally {
@@ -335,7 +337,9 @@ export default class FooterBar extends Vue {
 
     this.closeDiscardModal();
     this.$toast.error("Local changes cleared");
-    this.$router.push(`/vulnerabilities/${this.$route.params.id}`);
+    this.$router
+      .push(`/vulnerabilities/${this.$route.params.id}`)
+      .catch(() => undefined);
   }
 
   showPRModal() {
