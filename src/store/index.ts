@@ -1,8 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import hash from "object-hash";
-import VulnerabilityType from "../types/VulnerabilityType";
-import VulnerabilitiesType from "../types/VulnerabilitiesType";
 import {
   TRANSLATION_DEFAULT_LANGUAGE,
   LANGUAGES,

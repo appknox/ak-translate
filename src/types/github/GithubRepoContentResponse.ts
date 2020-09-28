@@ -1,5 +1,3 @@
-import Vue from "vue";
-
 export default interface GithubRepoContentResponse {
   type: string;
   name: string;
