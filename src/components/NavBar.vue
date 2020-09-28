@@ -7,16 +7,28 @@
     <slot></slot>
     <div class="navbar__right">
       <slot name="right"></slot>
+      <LanguageDropdown
+        v-if="showLanguageSwitch"
+        v-bind:disabled="languageSwitchDisabled"
+      />
       <div class="logged">{{ editor }}</div>
     </div>
   </header>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue } from "vue-property-decorator";
+import LanguageDropdown from "@/components/LanguageDropdown.vue";
 
-@Component
+@Component({
+  components: {
+    LanguageDropdown
+  }
+})
 export default class NavBar extends Vue {
+  @Prop() languageSwitchDisabled!: boolean;
+  @Prop({ default: false }) showLanguageSwitch!: boolean;
+
   private editor = "";
 
   fetchUser() {
@@ -46,6 +58,8 @@ export default class NavBar extends Vue {
     margin-left: auto;
     display: flex;
     align-items: center;
+    justify-content: flex-end;
+    height: 100%;
     & > * {
       margin-left: 0.8rem;
     }
