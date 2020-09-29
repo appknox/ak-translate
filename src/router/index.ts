@@ -58,18 +58,7 @@ const routes: Array<RouteConfig> = [
     component: () =>
       import(
         /* webpackChunkName: "vulnerability_translate" */ "../views/VulnerabilityTranslateView.vue"
-      ),
-    props: (route) => {
-      if (!store.getters.hasEditBranch) {
-        router.push({
-          name: "vulnerability",
-          params: {
-            id: route.params.id
-          }
-        });
-      }
-      return { id: route.params.id };
-    }
+      )
   },
   {
     path: "*",
