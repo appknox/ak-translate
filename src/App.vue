@@ -6,6 +6,7 @@
 
 <script lang="ts">
 import { Vue } from "vue-property-decorator";
+import router from "@/router";
 
 import "vue-material-design-icons/styles.css";
 
@@ -17,6 +18,8 @@ import vuepressTheme from "@kangc/v-md-editor/lib/theme/vuepress.js";
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
 
+import GithubUserService from "@/services/GithubUserService";
+
 VueMarkdownEditor.use(vuepressTheme);
 VueMarkdownEditor.lang.use("en-US", enUS);
 Vue.use(VueMarkdownEditor);
@@ -26,6 +29,22 @@ Vue.use(Toast, {
   transition: "Vue-Toastification__fade",
   pauseOnFocusLoss: false
 });
+
+function checkTokenValidity() {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    return;
+  }
+  return GithubUserService.get(token).catch(err => {
+    if (err.response.status == 401) {
+      localStorage.removeItem("token");
+      Vue.$toast.error("Could not authenticate");
+    }
+    router.push({ name: "login" });
+    return;
+  });
+}
+checkTokenValidity();
 
 export default {};
 </script>
@@ -59,7 +78,8 @@ export default {};
   font-size: inherit;
   color: inherit;
 }
-.v-md-textarea-editor pre, .v-md-textarea-editor textarea {
+.v-md-textarea-editor pre,
+.v-md-textarea-editor textarea {
   padding: 0.3rem 0.6rem;
   font-size: 0.85rem;
 }
