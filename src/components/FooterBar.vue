@@ -153,18 +153,18 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from "vue-property-decorator";
+import { Base64 } from "js-base64";
+import RestoreIcon from "vue-material-design-icons/Restore.vue";
+import TranslateIcon from "vue-material-design-icons/Translate.vue";
+import CloudUploadIcon from "vue-material-design-icons/CloudUpload.vue";
+import DeleteForeverIcon from "vue-material-design-icons/DeleteForever.vue";
+import SubmitIcon from "vue-material-design-icons/TextBoxCheckOutline.vue";
 import RepoBranchService from "@/services/RepoBranchService";
-import ModalDialog from "@/components/ModalDialog.vue";
 import RepoContentService from "@/services/RepoContentService";
 import RepoPullService from "@/services/RepoPullService";
 import GithubRepoContentResponse from "@/types/github/GithubRepoContentResponse";
 import GithubRepoBranchResponse from "@/types/github/GithubRepoBranchResponse";
-import { Base64 } from "js-base64";
-import RestoreIcon from "vue-material-design-icons/Restore.vue";
-import CloudUploadIcon from "vue-material-design-icons/CloudUpload.vue";
-import DeleteForeverIcon from "vue-material-design-icons/DeleteForever.vue";
-import TranslateIcon from "vue-material-design-icons/Translate.vue";
-import SubmitIcon from "vue-material-design-icons/TextBoxCheckOutline.vue";
+import ModalDialog from "@/components/ModalDialog.vue";
 
 @Component({
   components: {

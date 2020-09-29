@@ -50,8 +50,8 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
+import GithubUserService from "@/services/GithubUserService";
 import NavBar from "@/components/NavBar.vue";
-import GithubUserService from "../services/GithubUserService";
 
 @Component({
   components: {
