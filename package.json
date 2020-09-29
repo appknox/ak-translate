@@ -11,6 +11,7 @@
     "@kangc/v-md-editor": "^1.4.10",
     "axios": "^0.20.0",
     "core-js": "^3.6.5",
+    "dayjs": "^1.9.1",
     "js-base64": "^3.4.5",
     "js-sha1": "^0.6.0",
     "object-hash": "^2.0.3",
