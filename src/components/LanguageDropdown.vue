@@ -79,7 +79,7 @@ export default class LanguageDropdown extends Vue {
     height: 100%;
     &__icon {
       display: block;
-      margin-right: 0.2rem;
+      margin-right: 0.1rem;
       width: 1.6rem;
       height: 1.6rem;
       display: flex;

@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import BreadcrumbLinkType from "../types/BreadcrumbLinkType";
+import BreadcrumbLinkType from "@/types/BreadcrumbLinkType";
 
 @Component
 export default class BreadCrumb extends Vue {

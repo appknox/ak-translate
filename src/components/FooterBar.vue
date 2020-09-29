@@ -8,7 +8,6 @@
         <translate-icon />
         <span class="akt-btn--icon-text__label">Start Translation</span>
       </button>
-      <!-- <button class="akt-btn akt-btn--secondary">Edit Vulnerabilities</button> -->
     </div>
     <div v-if="mode === 'write'" class="vuln-read-options">
       <button
@@ -28,6 +27,7 @@
         v-if="modifiedVulnerabilitiesCount > 0"
         class="akt-btn akt-btn--icon akt-btn--clear--secondary"
         @click="showDiscardModal"
+        title="Discard unsaved changes"
       >
         <restore-icon />
       </button>
@@ -153,18 +153,18 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from "vue-property-decorator";
+import { Base64 } from "js-base64";
+import RestoreIcon from "vue-material-design-icons/Restore.vue";
+import TranslateIcon from "vue-material-design-icons/Translate.vue";
+import CloudUploadIcon from "vue-material-design-icons/CloudUpload.vue";
+import DeleteForeverIcon from "vue-material-design-icons/DeleteForever.vue";
+import SubmitIcon from "vue-material-design-icons/TextBoxCheckOutline.vue";
 import RepoBranchService from "@/services/RepoBranchService";
-import ModalDialog from "@/components/ModalDialog.vue";
 import RepoContentService from "@/services/RepoContentService";
 import RepoPullService from "@/services/RepoPullService";
 import GithubRepoContentResponse from "@/types/github/GithubRepoContentResponse";
 import GithubRepoBranchResponse from "@/types/github/GithubRepoBranchResponse";
-import { Base64 } from "js-base64";
-import RestoreIcon from "vue-material-design-icons/Restore.vue";
-import CloudUploadIcon from "vue-material-design-icons/CloudUpload.vue";
-import DeleteForeverIcon from "vue-material-design-icons/DeleteForever.vue";
-import TranslateIcon from "vue-material-design-icons/Translate.vue";
-import SubmitIcon from "vue-material-design-icons/TextBoxCheckOutline.vue";
+import ModalDialog from "@/components/ModalDialog.vue";
 
 @Component({
   components: {
@@ -262,7 +262,14 @@ export default class FooterBar extends Vue {
           Base64.encode(mvList[id].vulnerability[field].content),
           remoteFile.sha,
           `Updated ${fieldFileMap[field]} of vulnerability ${id} ${this.language} translation`
-        );
+        ).catch(err => {
+          if (err.response.status == 401) {
+            this.$toast.error("Could not authenticate");
+            this.$router.push({ name: "login" });
+          } else {
+            this.$toast.error("Save failed. Please try again");
+          }
+        });
 
         const response = await fetch(`${vulnUrl}/${fieldFileMap[field]}.md`);
         const content = await response.text();
@@ -381,7 +388,15 @@ export default class FooterBar extends Vue {
       this.branch,
       `Updated ${this.language} traslations via ak-translate`,
       `Author: ${this.editor}\n\n${this.prMsg}`
-    );
+    ).catch(err => {
+      if (err.response.status == 401) {
+        this.$toast.error("Could not authenticate");
+        this.$router.push({ name: "login" });
+      } else {
+        this.$toast.error("Submission failed. Please try again");
+      }
+      return;
+    });
   }
 
   getModifiedVulnerabilities() {
@@ -426,21 +441,30 @@ export default class FooterBar extends Vue {
       this.editor = this.username;
     }
 
-    return RepoBranchService.getAll("vulnerabilities").then(async response => {
-      const branches: GithubRepoBranchResponse[] = response.data;
-      const regex = RegExp(`akt-${this.editor}-[0-9]+`);
-      const userBranches = branches
-        .filter(b => b.protected == false)
-        .filter(b => regex.test(b.name));
-      if (userBranches && userBranches[0]) {
-        localStorage.setItem("branch", userBranches[0].name);
-        this.branch = userBranches[0].name;
-        this.$store.commit("saveBranch", this.branch);
+    return RepoBranchService.getAll("vulnerabilities")
+      .then(async response => {
+        const branches: GithubRepoBranchResponse[] = response.data;
+        const regex = RegExp(`akt-${this.editor}-[0-9]+`);
+        const userBranches = branches
+          .filter(b => b.protected == false)
+          .filter(b => regex.test(b.name));
+        if (userBranches && userBranches[0]) {
+          localStorage.setItem("branch", userBranches[0].name);
+          this.branch = userBranches[0].name;
+          this.$store.commit("saveBranch", this.branch);
+          return this.branch;
+        }
         return this.branch;
-      }
-
-      return this.branch;
-    });
+      })
+      .catch(err => {
+        if (err.response.status == 401) {
+          this.$toast.error("Could not authenticate");
+          this.$router.push({ name: "login" });
+        } else {
+          this.$toast.error("Something went wrong. Try reloading the page");
+        }
+        return;
+      });
   }
 
   getEditor() {
@@ -479,17 +503,32 @@ export default class FooterBar extends Vue {
     const masterHash = await RepoBranchService.getReferenceBranchHash(
       "vulnerabilities",
       "master"
-    ).then(async response => {
-      return response.data.object.sha;
-    });
+    )
+      .then(async response => {
+        return response.data.object.sha;
+      })
+      .catch(err => {
+        if (err.response.status == 401) {
+          this.$toast.error("Could not authenticate");
+          this.$router.push({ name: "login" });
+        } else {
+          this.$toast.error("Something went wrong. Please try again");
+        }
+        return;
+      });
 
-    await RepoBranchService.create(
-      "vulnerabilities",
-      newBranchName,
-      masterHash
-    ).then(async response => {
-      return response.data;
-    });
+    await RepoBranchService.create("vulnerabilities", newBranchName, masterHash)
+      .then(async response => {
+        return response.data;
+      })
+      .catch(err => {
+        if (err.response.status == 401) {
+          this.$toast.error("Could not authenticate");
+        } else {
+          this.$toast.error("Something went wrong. Please try again");
+        }
+        return;
+      });
 
     this.$store.commit("saveBranch", newBranchName);
     localStorage.setItem("branch", newBranchName);
