@@ -12,7 +12,7 @@
           >
           <div class="project__card disabled">Compliances</div>
           <div class="project__card disabled">Report</div>
-          <div class="project__card disabled">Irene</div>
+          <div class="project__card disabled">Dashboard</div>
         </div>
       </main>
     </div>

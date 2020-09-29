@@ -11,7 +11,8 @@
         v-if="showLanguageSwitch"
         v-bind:disabled="languageSwitchDisabled"
       />
-      <div
+      <div class="logged">{{ editor }}</div>
+      <!-- <div
         class="logged dropdown dropdown--right"
         v-bind:class="{ show: show }"
       >
@@ -25,7 +26,7 @@
             <span class="dropdown-item__text">Logout</span>
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
   </header>
 </template>
