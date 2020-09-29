@@ -1,6 +1,5 @@
 import VulnerabilityType from "./VulnerabilityType";
 
-
 export interface VulnerabilityDiffType {
   hash: string;
   vulnerability: VulnerabilityType;

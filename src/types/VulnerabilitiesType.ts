@@ -1,6 +1,5 @@
 import VulnerabilityType from "./VulnerabilityType";
 
-
 export interface IdVulnerabilityMapType {
   [key: string]: VulnerabilityType;
 }

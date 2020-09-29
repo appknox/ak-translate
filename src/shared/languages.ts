@@ -3,7 +3,7 @@ export const TRANSLATION_LANGUAGES = [
     text: "Japanese",
     key: "ja",
     flag: "🇯🇵"
-  },
+  }
 ];
 
 export const LANGUAGES = [

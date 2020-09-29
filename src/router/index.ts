@@ -1,14 +1,17 @@
 import Vue from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
-import store from '../store';
 
 Vue.use(VueRouter);
 
-function guard(to, from, next){
-  if (localStorage.getItem("token") && localStorage.getItem("username") && localStorage.getItem("editor")) {
+function guard(to, from, next) {
+  if (
+    localStorage.getItem("token") &&
+    localStorage.getItem("username") &&
+    localStorage.getItem("editor")
+  ) {
     next();
   } else {
-    next('/login');
+    next("/login");
   }
 }
 
@@ -17,7 +20,7 @@ const routes: Array<RouteConfig> = [
     path: "/",
     name: "home",
     beforeEnter: guard,
-    redirect: { name: "projects"}
+    redirect: { name: "projects" }
   },
   {
     path: "/login",
@@ -42,14 +45,16 @@ const routes: Array<RouteConfig> = [
     path: "/vulnerabilities",
     name: "vulnerabilities",
     beforeEnter: guard,
-    redirect: '/vulnerabilities/1',
+    redirect: "/vulnerabilities/1"
   },
   {
     path: "/vulnerabilities/:id",
     name: "vulnerability",
     beforeEnter: guard,
     component: () =>
-      import(/* webpackChunkName: "projects" */ "../views/VulnerabilityView.vue"),
+      import(
+        /* webpackChunkName: "projects" */ "../views/VulnerabilityView.vue"
+      )
   },
   {
     path: "/vulnerabilities/:id/translate",
@@ -62,8 +67,8 @@ const routes: Array<RouteConfig> = [
   },
   {
     path: "*",
-    redirect: { name: "home"}
-  },
+    redirect: { name: "home" }
+  }
 ];
 
 const router = new VueRouter({

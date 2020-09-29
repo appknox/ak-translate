@@ -6,8 +6,26 @@ import {
   LANGUAGES,
   vulnerabilityMapTpl
 } from "@/shared/languages";
+import VulnerabilityType from "@/types/VulnerabilityType";
 
 Vue.use(Vuex);
+
+function initModVulnerabilities(state) {
+  for (const lang of LANGUAGES) {
+    Object.values(state.vulnerabilities[lang.key]).forEach(vuln => {
+      const v: VulnerabilityType = vuln as VulnerabilityType;
+      if (!state.modifiedVulnerabilities[lang.key][v.id]) {
+        state.modifiedVulnerabilities[lang.key][v.id] = {
+          hash: "",
+          vulnerability: null
+        };
+      }
+      state.modifiedVulnerabilities[lang.key][v.id]["hash"] = hash(v);
+    });
+  }
+  state.modifiedVulnerabilitiesCounter += 1;
+  return;
+}
 
 export default new Vuex.Store({
   state: {
@@ -19,10 +37,10 @@ export default new Vuex.Store({
     editor: "",
     language: "",
     commitCount: 0,
-    languageCounter: 0,
+    languageCounter: 0
   },
   getters: {
-    getVulnerabilityMapTemplate: state => {
+    getVulnerabilityMapTemplate: () => {
       return vulnerabilityMapTpl();
     },
     getVulnerabilities: state => {
@@ -101,7 +119,8 @@ export default new Vuex.Store({
     },
     resetModifiedVulnerabilities(state) {
       for (const lang of LANGUAGES) {
-        Object.values(state.vulnerabilities[lang.key]).forEach((v: any) => {
+        Object.values(state.vulnerabilities[lang.key]).forEach(vuln => {
+          const v: VulnerabilityType = vuln as VulnerabilityType;
           state.modifiedVulnerabilities[lang.key][v.id] = {
             hash: hash(v),
             vulnerability: null
@@ -111,7 +130,7 @@ export default new Vuex.Store({
       state.modifiedVulnerabilitiesCounter += 1;
       return;
     },
-    initLanguage(state, payload) {
+    initLanguage(state) {
       if (!state.language) {
         let lang = localStorage.getItem("language");
         if (!lang) {
@@ -143,19 +162,3 @@ export default new Vuex.Store({
   actions: {},
   modules: {}
 });
-
-function initModVulnerabilities(state) {
-  for (const lang of LANGUAGES) {
-    Object.values(state.vulnerabilities[lang.key]).forEach((v: any) => {
-      if (!state.modifiedVulnerabilities[lang.key][v.id]) {
-        state.modifiedVulnerabilities[lang.key][v.id] = {
-          hash: "",
-          vulnerability: null
-        };
-      }
-      state.modifiedVulnerabilities[lang.key][v.id]["hash"] = hash(v);
-    });
-  }
-  state.modifiedVulnerabilitiesCounter += 1;
-  return;
-}
