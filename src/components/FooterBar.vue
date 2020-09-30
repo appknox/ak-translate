@@ -1,44 +1,49 @@
 <template>
   <footer class="footer">
-    <div v-if="mode === 'read'" class="vuln-read-options">
-      <button
-        class="akt-btn akt-btn--icon-text akt-btn--primary"
-        v-on:click="startWrite()"
-      >
-        <translate-icon />
-        <span class="akt-btn--icon-text__label">Start Translation</span>
-      </button>
+    <div class="footer__left">
+      <slot name="faq"></slot>
     </div>
-    <div v-if="mode === 'write'" class="vuln-read-options">
-      <button
-        class="akt-btn akt-btn--primary"
-        @click="showCommitModal"
-        :disabled="modifiedVulnerabilitiesCount == 0 || isCommitting"
-      >
-        <span v-if="isCommitting">Saving...</span>
-        <span v-else>
-          <cloud-upload-icon />
-          <span class="akt-btn--icon-text__label"
-            >Save Changes ({{ modifiedVulnerabilitiesCount }})</span
-          >
-        </span>
-      </button>
-      <button
-        v-if="modifiedVulnerabilitiesCount > 0"
-        class="akt-btn akt-btn--icon akt-btn--clear--secondary"
-        @click="showDiscardModal"
-        title="Discard unsaved changes"
-      >
-        <restore-icon />
-      </button>
-      <button
-        class="akt-btn akt-btn--secondary"
-        @click="showPRModal"
-        :disabled="!isSubmissible"
-      >
-        <submit-icon />
-        <span class="akt-btn--icon-text__label">Submit for Review</span>
-      </button>
+    <div class="footer__right">
+      <div v-if="mode === 'read'" class="vuln-read-options">
+        <button
+          class="akt-btn akt-btn--icon-text akt-btn--primary"
+          v-on:click="startWrite()"
+        >
+          <translate-icon />
+          <span class="akt-btn--icon-text__label">Start Translation</span>
+        </button>
+      </div>
+      <div v-if="mode === 'write'" class="vuln-read-options">
+        <button
+          class="akt-btn akt-btn--primary"
+          @click="showCommitModal"
+          :disabled="modifiedVulnerabilitiesCount == 0 || isCommitting"
+        >
+          <span v-if="isCommitting">Saving...</span>
+          <span v-else>
+            <cloud-upload-icon />
+            <span class="akt-btn--icon-text__label"
+              >Save Changes ({{ modifiedVulnerabilitiesCount }})</span
+            >
+          </span>
+        </button>
+        <button
+          v-if="modifiedVulnerabilitiesCount > 0"
+          class="akt-btn akt-btn--icon akt-btn--clear--secondary"
+          @click="showDiscardModal"
+          title="Discard unsaved changes"
+        >
+          <restore-icon />
+        </button>
+        <button
+          class="akt-btn akt-btn--secondary"
+          @click="showPRModal"
+          :disabled="!isSubmissible"
+        >
+          <submit-icon />
+          <span class="akt-btn--icon-text__label">Submit for Review</span>
+        </button>
+      </div>
     </div>
 
     <modal-dialog v-show="isCommitModalVisible" @close="closeCommitModal">
@@ -561,6 +566,10 @@ export default class FooterBar extends Vue {
 <style scoped lang="scss">
 .footer {
   height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 1.1rem;
 }
 
 .vuln-read-options {
