@@ -5,7 +5,7 @@
       v-on:mouseenter="show = true"
       v-on:mouseleave="show = false"
     >
-      i
+      <InfoIcon />
     </div>
     <div class="popover__msg" v-bind:class="{ active: show }">
       {{ msg }}
@@ -15,8 +15,13 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
+import InfoIcon from "vue-material-design-icons/InformationOutline.vue";
 
-@Component
+@Component({
+  components: {
+    InfoIcon
+  }
+})
 export default class PopoverInfo extends Vue {
   @Prop() private msg!: string;
 
@@ -28,20 +33,14 @@ export default class PopoverInfo extends Vue {
 .popover {
   position: relative;
   &__icon {
-    border: 1px solid currentColor;
-    height: 1.2rem;
-    width: 1.2rem;
-    border-radius: 50%;
-    background: $color-gray;
-    color: white;
+    color: $color-gray;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
-    font-size: 0.7rem;
+    font-size: 1.2rem;
     cursor: default;
     &:hover {
-      background: $color-primary;
+      color: $color-primary;
     }
   }
   &__msg {
