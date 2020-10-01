@@ -12,7 +12,7 @@ Vue.use(Vuex);
 
 function initModVulnerabilities(state) {
   for (const lang of LANGUAGES) {
-    Object.values(state.vulnerabilities[lang.key]).forEach(vuln => {
+    Object.values(state.masterVulnerabilities[lang.key]).forEach(vuln => {
       const v: VulnerabilityType = vuln as VulnerabilityType;
       if (!state.modifiedVulnerabilities[lang.key][v.id]) {
         state.modifiedVulnerabilities[lang.key][v.id] = {
@@ -30,9 +30,11 @@ function initModVulnerabilities(state) {
 export default new Vuex.Store({
   state: {
     vulnerabilities: vulnerabilityMapTpl(),
+    masterVulnerabilities: vulnerabilityMapTpl(),
     modifiedVulnerabilities: vulnerabilityMapTpl(),
-    modifiedVulnerabilitiesCounter: 0,
     vulnerabilitiesCounter: 0,
+    masterVulnerabilitiesCounter: 0,
+    modifiedVulnerabilitiesCounter: 0,
     branch: "master",
     editor: "",
     language: "",
@@ -47,11 +49,17 @@ export default new Vuex.Store({
     getVulnerabilities: state => {
       return state.vulnerabilities;
     },
+    getMasterVulnerabilities: state => {
+      return state.masterVulnerabilities;
+    },
     getVulnerabilitiesForLang: state => (lang = "en") => {
       return state.vulnerabilities[lang];
     },
     getVulnerability: state => (id: number, lang: string) => {
       return state.vulnerabilities[lang][id];
+    },
+    getMasterVulnerability: state => (id: number, lang: string) => {
+      return state.masterVulnerabilities[lang][id];
     },
     getModifiedVulnerabilities: state => {
       return state.modifiedVulnerabilities;
@@ -95,6 +103,12 @@ export default new Vuex.Store({
       state.vulnerabilities[payload.lang][payload.id][payload.field] =
         payload.value;
       state.vulnerabilitiesCounter += 1;
+      return;
+    },
+    saveMasterVulnerability(state, payload) {
+      state.masterVulnerabilities[payload.lang][payload.id] =
+        payload.vulnerability;
+      state.masterVulnerabilitiesCounter += 1;
       return;
     },
     saveModifiedVulnerabilityField(state, payload) {
