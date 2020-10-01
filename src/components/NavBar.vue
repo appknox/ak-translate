@@ -34,7 +34,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
 import AccountIcon from "vue-material-design-icons/Account.vue";
-import LogoutIcon from "vue-material-design-icons/ApplicationExport.vue";
+import LogoutIcon from "vue-material-design-icons/LocationExit.vue";
 import LanguageDropdown from "@/components/LanguageDropdown.vue";
 
 @Component({

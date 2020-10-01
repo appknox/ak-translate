@@ -37,7 +37,8 @@ export default new Vuex.Store({
     editor: "",
     language: "",
     commitCount: 0,
-    languageCounter: 0
+    languageCounter: 0,
+    branchCounter: 0
   },
   getters: {
     getVulnerabilityMapTemplate: () => {
@@ -76,8 +77,8 @@ export default new Vuex.Store({
     getCommitCount: state => {
       return state.commitCount;
     },
-    hasEditBranch() {
-      const currentBranch = localStorage.getItem("branch");
+    hasEditBranch: state => {
+      const currentBranch = state.branch || localStorage.getItem("branch");
       if (!currentBranch || ["master", ""].includes(currentBranch)) {
         return false;
       }
@@ -86,8 +87,7 @@ export default new Vuex.Store({
   },
   mutations: {
     saveVulnerability(state, payload) {
-      state.vulnerabilities[payload.lang][payload.vulnerability.id] =
-        payload.vulnerability;
+      state.vulnerabilities[payload.lang][payload.id] = payload.vulnerability;
       state.vulnerabilitiesCounter += 1;
       return;
     },
@@ -148,6 +148,7 @@ export default new Vuex.Store({
     },
     saveBranch(state, payload) {
       state.branch = payload;
+      state.branchCounter += 1;
       return;
     },
     saveEditor(state, payload) {
