@@ -87,8 +87,7 @@ export default new Vuex.Store({
   },
   mutations: {
     saveVulnerability(state, payload) {
-      state.vulnerabilities[payload.lang][payload.vulnerability.id] =
-        payload.vulnerability;
+      state.vulnerabilities[payload.lang][payload.id] = payload.vulnerability;
       state.vulnerabilitiesCounter += 1;
       return;
     },
