@@ -253,14 +253,17 @@ export default class FooterBar extends Vue {
       const origVuln = this.$store.getters.getVulnerability(id, lang);
       const modifiedVuln = mvList[id];
       const vulnUrl = `${RAW_BASE_URL}/${langDir}/${origVuln.key}`;
+      const token = localStorage.getItem("token") || "";
       for (const field in modifiedVuln.vulnerability) {
         const remoteFile: GithubRepoContentResponse = await RepoContentService.get(
+          token,
           REPO,
           this.branch,
           `${langDir}/${origVuln.key}/${fieldFileMap[field]}.md`
         ).then(response => response.data);
 
         await RepoContentService.put(
+          token,
           REPO,
           this.branch,
           `${langDir}/${origVuln.key}/${fieldFileMap[field]}.md`,
@@ -388,7 +391,9 @@ export default class FooterBar extends Vue {
   }
 
   async submitPullRequest() {
+    const token = localStorage.getItem("token") || "";
     return await RepoPullService.post(
+      token,
       "vulnerabilities",
       this.branch,
       `Updated ${this.language} traslations via ak-translate`,
@@ -446,7 +451,8 @@ export default class FooterBar extends Vue {
       this.editor = this.username;
     }
 
-    return RepoBranchService.getAll("vulnerabilities")
+    const token = localStorage.getItem("token") || "";
+    return RepoBranchService.getAll(token, "vulnerabilities")
       .then(async response => {
         const branches: GithubRepoBranchResponse[] = response.data;
         const regex = RegExp(`akt-${this.editor}-[0-9]+`);
@@ -505,7 +511,9 @@ export default class FooterBar extends Vue {
   }
 
   async createBranch(newBranchName: string) {
+    const token = localStorage.getItem("token") || "";
     const masterHash = await RepoBranchService.getReferenceBranchHash(
+      token,
       "vulnerabilities",
       "master"
     )
@@ -522,7 +530,12 @@ export default class FooterBar extends Vue {
         return;
       });
 
-    await RepoBranchService.create("vulnerabilities", newBranchName, masterHash)
+    await RepoBranchService.create(
+      token,
+      "vulnerabilities",
+      newBranchName,
+      masterHash
+    )
       .then(async response => {
         return response.data;
       })

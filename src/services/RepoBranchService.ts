@@ -1,18 +1,30 @@
 import { githubClient } from "../http-common";
 
 class RepoBranchService {
-  getAll(repo = "vulnerabilities") {
-    return githubClient.get(`/repos/appknox/${repo}/branches`);
+  getAll(token: string, repo = "vulnerabilities") {
+    return githubClient.get(`/repos/appknox/${repo}/branches`, {
+      headers: {
+        Authorization: `Token ${token}`
+      }
+    });
   }
 
-  getReferenceBranchHash(repo = "vulnerabilities", branch = "master") {
-    return githubClient.get(`/repos/appknox/${repo}/git/refs/heads/${branch}`);
+  getReferenceBranchHash(token: string, repo = "vulnerabilities", branch = "master") {
+    return githubClient.get(`/repos/appknox/${repo}/git/refs/heads/${branch}`, {
+      headers: {
+        Authorization: `Token ${token}`
+      }
+    });
   }
 
-  create(repo = "vulnerabilities", branch: string, refHash: string) {
+  create(token: string, repo = "vulnerabilities", branch: string, refHash: string) {
     return githubClient.post(`/repos/appknox/${repo}/git/refs`, {
       ref: `refs/heads/${branch}`,
       sha: `${refHash}`
+    }, {
+      headers: {
+        Authorization: `Token ${token}`
+      }
     });
   }
 }

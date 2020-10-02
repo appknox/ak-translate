@@ -1,12 +1,17 @@
 import { githubClient } from "../http-common";
 
 class RepoContentService {
-  get(repo: string, branch: string, path: string) {
+  get(token: string, repo: string, branch: string, path: string) {
     return githubClient.get(
-      `/repos/appknox/${repo}/contents/${path}?ref=${branch}`
+      `/repos/appknox/${repo}/contents/${path}?ref=${branch}`, {
+        headers: {
+          Authorization: `Token ${token}`
+        }
+      }
     );
   }
   put(
+    token: string,
     repo: string,
     branch: string,
     path: string,
@@ -19,6 +24,10 @@ class RepoContentService {
       message,
       content,
       sha
+    }, {
+      headers: {
+        Authorization: `Token ${token}`
+      }
     });
   }
 }
