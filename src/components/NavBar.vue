@@ -12,7 +12,7 @@
         v-bind:disabled="languageSwitchDisabled"
       />
       <div class="logged">{{ editor }}</div>
-      <!-- <div
+      <div
         class="logged dropdown dropdown--right"
         v-bind:class="{ show: show }"
       >
@@ -21,12 +21,19 @@
           <span class="dropdown-toggle__text">{{ editor }}</span>
         </button>
         <div class="dropdown-items">
-          <div class="dropdown-item" v-on:click="logout()">
+          <div
+            class="dropdown-item dropdown-item--danger"
+            v-on:click="resetSession()"
+          >
+            <span class="dropdown-item__icon"><ResetSessionIcon /></span>
+            <span class="dropdown-item__text">Reset&nbsp;Session</span>
+          </div>
+          <!-- <div class="dropdown-item" v-on:click="logout()">
             <span class="dropdown-item__icon"><LogoutIcon /></span>
             <span class="dropdown-item__text">Logout</span>
-          </div>
+          </div> -->
         </div>
-      </div> -->
+      </div>
     </div>
   </header>
 </template>
@@ -35,13 +42,15 @@
 import { Component, Prop, Vue } from "vue-property-decorator";
 import AccountIcon from "vue-material-design-icons/Account.vue";
 import LogoutIcon from "vue-material-design-icons/LocationExit.vue";
+import ResetSessionIcon from "vue-material-design-icons/DeleteForever.vue";
 import LanguageDropdown from "@/components/LanguageDropdown.vue";
 
 @Component({
   components: {
     LanguageDropdown,
     AccountIcon,
-    LogoutIcon
+    LogoutIcon,
+    ResetSessionIcon
   }
 })
 export default class NavBar extends Vue {
@@ -59,6 +68,11 @@ export default class NavBar extends Vue {
     // localStorage.clear();
     this.$router.push({ name: "login" });
     this.$toast.success("Logged out");
+  }
+
+  resetSession() {
+    localStorage.clear();
+    this.$router.go(0);
   }
 
   fetchUser() {
@@ -184,11 +198,15 @@ export default class NavBar extends Vue {
     &__text {
       display: block;
     }
+    &--danger {
+      color: $color-secondary;
+    }
   }
   &--right {
     .dropdown-items {
       left: auto;
       right: 0;
+      min-width: 12rem;
     }
   }
 }
