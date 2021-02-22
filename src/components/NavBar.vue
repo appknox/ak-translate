@@ -11,7 +11,7 @@
         v-if="showLanguageSwitch"
         v-bind:disabled="languageSwitchDisabled"
       />
-      <div class="logged">{{ editor }}</div>
+      <!-- <div class="logged">{{ editor }}</div> -->
       <div
         class="logged dropdown dropdown--right"
         v-bind:class="{ show: show }"
